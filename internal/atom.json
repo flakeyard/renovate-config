@@ -1,0 +1,5 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "flakeyard atom repositories: default rules; consumers follow every input, so no update releases",
+  "extends": ["/default"]
+}

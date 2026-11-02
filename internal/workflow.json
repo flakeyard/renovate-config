@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "flakeyard workflow repositories: default rules, released files are fix",
+  "extends": ["/default"],
+  "packageRules": [
+    {
+      "description": "The composition of the product workflow and the tools of its flake (FY-0007, FY-0030); the product workflow file itself is raised in the repository config",
+      "matchFileNames": [".github/actions/**", "flake.nix"],
+      "semanticCommitType": "fix"
+    }
+  ]
+}

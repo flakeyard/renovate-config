@@ -86,8 +86,15 @@ def default_problems:
     | "ignorePaths must contain \(.)"),
   flake_input_problems;
 
+# The presets of flakeyard repositories add rules to the default preset,
+# which they extend by a reference relative to their own tag.
+def internal_problems:
+  preset_problems,
+  (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end);
+
 def problems($kind):
   if $kind == "inherited" then inherited_problems
   elif $kind == "default" then default_problems
+  elif $kind == "internal" then internal_problems
   else "unknown kind of file \($kind)"
   end;
