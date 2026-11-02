@@ -138,13 +138,19 @@ without its own `renovate.json`. The checks reject any other key.
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`, formatting
   (`nix fmt`), and the scripts with their unit tests (`tests/unit/`).
+- `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
+  Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
+  with the preset named in `preset`, read from the commit `REF` of this
+  repository on GitHub, and `expect.jq` checks its report. `REF` must be pushed.
+  The tests need the network and a token that can read public repositories in
+  `RENOVATE_GITHUB_COM_TOKEN`, such as the one of `gh auth token`.
 - `nix run .#check-eol -- nixpkgs-eol` warns before the nixpkgs branch reaches
   its end of life ([FY-0026][fy-0026]).
 
-CI runs the checks on both architectures; the weekly workflow
-`maintenance.yaml`, which is not a required check, runs `check-eol`. Releases
-are made by release-please through `flakeyard/workflow-release`; `0.y.z`
-releases are pre-releases.
+CI runs the checks on both architectures and the lookup tests with the commit
+under test, also weekly; the weekly workflow `maintenance.yaml`, which is not a
+required check, runs `check-eol`. Releases are made by release-please through
+`flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
 
 ## Bootstrap
 

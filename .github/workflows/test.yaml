@@ -1,10 +1,14 @@
-# CI of this repository: the checks of the flake on both architectures.
+# CI of this repository: the checks of the flake on both architectures and the
+# lookup tests of the presets. Weekly, because the lookup tests depend on the
+# releases of what their fixtures pin.
 name: test
 
 on:
   pull_request:
   push:
     branches: [main, "release/v*"]
+  schedule:
+    - cron: "53 4 * * 1"
   workflow_dispatch:
 
 permissions: {}
@@ -55,9 +59,30 @@ jobs:
         shell: bash
         run: nix flake check --no-update-lock-file --print-build-logs
 
+  # Renovate reads the presets from GitHub, at the commit under test.
+  lookup:
+    name: Lookup tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      REF: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.REF }}
+          persist-credentials: false
+      - uses: flakeyard/action-setup-nix@a90eeb051e85033f5d3c3e40dd213a585f34ec8d # v0.1.1
+      - name: Look up updates with the presets of the commit
+        shell: bash
+        env:
+          RENOVATE_GITHUB_COM_TOKEN: ${{ github.token }}
+        run: nix run --no-update-lock-file .#check-lookup -- "$REF" tests/lookup/*/
+
   required:
     name: required
-    needs: [pending, check]
+    needs: [pending, check, lookup]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5

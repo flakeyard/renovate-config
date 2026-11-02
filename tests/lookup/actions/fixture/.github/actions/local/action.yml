@@ -1,0 +1,7 @@
+name: local
+description: An action of the same repository, referenced by $/.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: "true"

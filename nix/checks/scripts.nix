@@ -10,6 +10,7 @@
             nativeBuildInputs = with pkgs; [
               bash
               coreutils
+              git
               gnugrep
               jq
               renovate
