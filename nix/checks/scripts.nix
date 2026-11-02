@@ -18,6 +18,7 @@
             scripts = ../../scripts;
             unit = ../../tests/unit;
             inherit presets;
+            RENOVATE_SCHEMA = "${pkgs.renovate}/lib/node_modules/renovate/renovate-schema.json";
             # A store path name cannot start with a period.
             github = builtins.path {
               name = "github";
