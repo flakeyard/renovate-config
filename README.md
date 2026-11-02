@@ -6,10 +6,20 @@ the [decisions][decisions] of flakeyard require and add no policy of their own.
 
 Work in progress: the presets are not released yet.
 
+## Inherited configuration
+
+The Mend-hosted Renovate app reads `org-inherited-config.json` from `main` of
+this repository and applies it to every repository of the organization
+([FY-0029][fy-0029]). The file is neither pinned nor released, so it holds only
+the onboarding settings, the same as the organization settings in the Mend
+Developer Portal: no onboarding pull requests, and no run in a repository
+without its own `renovate.json`. The checks reject any other key.
+
 ## Development
 
-- `nix flake check` checks formatting (`nix fmt`) and the scripts with their
-  unit tests (`tests/unit/`).
+- `nix flake check` checks the presets and configuration files with Renovate's
+  validator and the rules of `scripts/check/presets/rules.jq`, formatting
+  (`nix fmt`), and the scripts with their unit tests (`tests/unit/`).
 - `nix run .#check-eol -- nixpkgs-eol` warns before the nixpkgs branch reaches
   its end of life ([FY-0026][fy-0026]).
 
@@ -46,6 +56,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0016-pin-form.md
 [fy-0026]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0026-stable-nixpkgs.md
+[fy-0029]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0029-renovate-mend.md
 [fy-0022]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0022-bootstrap.md
 [fy-0028]:
