@@ -1,0 +1,26 @@
+# Releases this repository with flakeyard/workflow-release. Consumers pin the
+# presets by the tag vX.Y.Z of the immutable release (FY-0028).
+name: release
+
+on:
+  push:
+    branches: [main, "release/v*"]
+
+permissions: {}
+
+jobs:
+  release:
+    uses: flakeyard/workflow-release/.github/workflows/release.yaml@3d0d3dcf40f8ac8e03dc3f585085ca11d7b8f5ed # v0.1.1
+    # Required by the called workflow for every path; with the App, its token
+    # does the writes.
+    permissions:
+      contents: write # releases and tags without an App
+      issues: write # release-please labels
+      pull-requests: write # the release pull request
+      actions: write # dispatched checks without an App
+    with:
+      app-client-id: ${{ vars.BOT_CLIENT_ID }}
+      environment: release
+      move-major-tag: true
+    secrets:
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
