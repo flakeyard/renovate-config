@@ -8,10 +8,15 @@ Work in progress: the presets are not released yet.
 
 ## Development
 
-- `nix flake check` checks formatting (`nix fmt`) and the scripts.
+- `nix flake check` checks formatting (`nix fmt`) and the scripts with their
+  unit tests (`tests/unit/`).
+- `nix run .#check-eol -- nixpkgs-eol` warns before the nixpkgs branch reaches
+  its end of life ([FY-0026][fy-0026]).
 
-CI runs it on both architectures. Releases are made by release-please through
-`flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
+CI runs the checks on both architectures; the weekly workflow
+`maintenance.yaml`, which is not a required check, runs `check-eol`. Releases
+are made by release-please through `flakeyard/workflow-release`; `0.y.z`
+releases are pre-releases.
 
 ## Bootstrap
 
@@ -39,6 +44,8 @@ are released:
 [decisions]: https://github.com/flakeyard/decisions
 [fy-0016]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0016-pin-form.md
+[fy-0026]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0026-stable-nixpkgs.md
 [fy-0022]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0022-bootstrap.md
 [fy-0028]:
