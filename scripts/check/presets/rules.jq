@@ -92,9 +92,20 @@ def internal_problems:
   preset_problems,
   (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end);
 
+# How a repository extends a preset: by the exact tag of a release, never by
+# the moving tag vX, a branch or a reference relative to the repository
+# (FY-0028).
+def released_preset_pattern: "^github>flakeyard/renovate-config(//[a-z/]+)?#v[0-9]+\\.[0-9]+\\.[0-9]+$";
+
+def repository_problems:
+  (if (.extends // []) == [] then "renovate.json must extend a preset of this repository" else empty end),
+  (.extends // [] | .[] | select(test(released_preset_pattern) | not)
+    | "\(.) is not a preset of this repository by the tag of a release (FY-0028)");
+
 def problems($kind):
   if $kind == "inherited" then inherited_problems
   elif $kind == "default" then default_problems
   elif $kind == "internal" then internal_problems
+  elif $kind == "repository" then repository_problems
   else "unknown kind of file \($kind)"
   end;

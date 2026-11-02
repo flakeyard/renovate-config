@@ -34,6 +34,11 @@ setup
 run "presets: the repository" ok check
 finish
 
+setup
+change renovate.json '.extends = ["github>flakeyard/renovate-config//internal/workflow#v1.2.3"]'
+run "presets: an internal preset in renovate.json" ok check
+finish
+
 while IFS='|' read -r name file filter message; do
   setup
   change "$file" "$filter"
@@ -66,6 +71,12 @@ internal, a built-in preset|internal/image.json|.extends += ["config:recommended
 internal, the default by tag|internal/atom.json|.extends = ["github>flakeyard/renovate-config#v0.1.0"]|must extend exactly ["/default"]
 internal, a rule without its decision|internal/template.json|.packageRules[0].description = "files"|packageRules[0] has no description
 internal, enabledManagers|internal/workflow.json|.enabledManagers = ["github-actions"]|enabledManagers turns off
+repository, no preset|renovate.json|del(.extends)|must extend a preset of this repository
+repository, the moving tag|renovate.json|.extends = ["github>flakeyard/renovate-config#v0"]|is not a preset of this repository by the tag of a release
+repository, a branch|renovate.json|.extends = ["github>flakeyard/renovate-config#main"]|is not a preset of this repository by the tag of a release
+repository, a relative reference|renovate.json|.extends = ["/default"]|/default is not a preset of this repository
+repository, a built-in preset|renovate.json|.extends += [":semanticCommits"]|:semanticCommits is not a preset of this repository
+repository, another repository|renovate.json|.extends = ["github>flakeyard-evil/renovate-config#v1.0.0"]|is not a preset of this repository
 internal, an invalid option|internal/action.json|.packageRules[0].semanticCommitType = 1|Configuration Error
 CASES
 

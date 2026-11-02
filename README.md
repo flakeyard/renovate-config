@@ -4,8 +4,6 @@ Renovate presets of flakeyard, consumed by every flakeyard repository and by
 projects generated from flakeyard templates. They encode the update rules that
 the [decisions][decisions] of flakeyard require and add no policy of their own.
 
-Work in progress: the presets are not released yet.
-
 ## Usage
 
 A generated project, or a repository that is not a flakeyard product, extends
@@ -152,6 +150,12 @@ under test, also weekly; the weekly workflow `maintenance.yaml`, which is not a
 required check, runs `check-eol`. Releases are made by release-please through
 `flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
 
+This repository extends its own default preset by the tag of its latest release,
+so every release comes back as a Renovate pull request here first. Read the job
+log of that pull request in the Mend Developer Portal before other repositories
+take the release: it shows the Renovate version Mend runs and whether it accepts
+the presets.
+
 ## Bootstrap
 
 This repository is bootstrapped under [FY-0022][fy-0022]. Until their providers
@@ -166,10 +170,9 @@ are released:
 - the jobs `pending` and `required` of `.github/workflows/test.yaml` and
   `.github/scripts/commit-status.sh` and `required.sh` are a copy shared with
   the other bootstrapped repositories (provider: `workflow-check`);
-- OpenSSF Scorecard is not run (provider: `workflow-check`);
-- dependency updates are made by hand, following [FY-0016][fy-0016] and
-  [FY-0028][fy-0028], while Renovate is not configured (provider:
-  `renovate-config`).
+- CI does not check that the tag of the preset in `renovate.json` belongs to an
+  immutable release ([FY-0028][fy-0028]) (provider: `workflow-check`);
+- OpenSSF Scorecard is not run (provider: `workflow-check`).
 
 ## License
 
