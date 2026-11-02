@@ -1,0 +1,5 @@
+// The digest of the amd64 manifest of v0.1.0, which is not the digest of the
+// tag v0, so that v0 always has a different one.
+{
+  "image": "ghcr.io/flakeyard/image-devcontainer:v0@sha256:b9abbf157e7ee9554cceffb82696aabeaaf8ee77ec03be977f0e24acb826ec81"
+}

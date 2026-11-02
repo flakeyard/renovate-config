@@ -1,0 +1,49 @@
+{
+  "nodes": {
+    "action-setup-nix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793270616,
+        "narHash": "sha256-qUWR7FpIC3p6bnC++Pp8L8FiIFwXUZHAeSqnZY3AcvY=",
+        "ref": "v0",
+        "rev": "2c58fef33760785dfe660be025fcadd88f1269b1",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/action-setup-nix"
+      },
+      "original": {
+        "ref": "v0",
+        "rev": "2c58fef33760785dfe660be025fcadd88f1269b1",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/action-setup-nix"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1793183032,
+        "narHash": "sha256-56mFMf8heLNfYhcgbrh4GpN5x+G9JOfTFXZC3n6w0qM=",
+        "ref": "nixos-26.05",
+        "rev": "08d3a97586f6b6343b3b5e799980773629432610",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/NixOS/nixpkgs"
+      },
+      "original": {
+        "ref": "nixos-26.05",
+        "rev": "08d3a97586f6b6343b3b5e799980773629432610",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/NixOS/nixpkgs"
+      }
+    },
+    "root": {
+      "inputs": {
+        "action-setup-nix": "action-setup-nix",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
