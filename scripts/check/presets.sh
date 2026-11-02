@@ -12,6 +12,7 @@ repository=$1
 rules_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/presets" && pwd)
 inherited_config=org-inherited-config.json
 default_preset=default.json
+repository_config=renovate.json
 
 # validate_global FILE: Renovate's validator on FILE as global configuration.
 validate_global() {
@@ -73,11 +74,18 @@ check_internal_presets() {
   return "$failed"
 }
 
+# check_repository_config: the configuration of this repository, which
+# extends a released preset like any other repository.
+check_repository_config() {
+  validate_repository "$repository_config" && check_rules repository "$repository_config"
+}
+
 cd -- "$repository"
 failed=0
 check_inherited_config || failed=1
 check_default_preset || failed=1
 check_internal_presets || failed=1
+check_repository_config || failed=1
 if ((failed)); then
   echo "::error::The presets or configuration files have problems."
   exit 1
