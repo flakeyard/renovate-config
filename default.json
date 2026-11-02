@@ -1,0 +1,121 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "flakeyard update rules for every repository and generated project",
+  "timezone": "Etc/UTC",
+  "dependencyDashboard": true,
+  "dependencyDashboardApproval": false,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "labels": ["dependencies"],
+  "rebaseWhen": "behind-base-branch",
+  "automerge": false,
+  "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "internalChecksFilter": "strict",
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/fixture/**"
+  ],
+  "lockFileMaintenance": {
+    "enabled": false
+  },
+  "nix": {
+    "enabled": true
+  },
+  "copier": {
+    "enabled": false
+  },
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  },
+  "packageRules": [
+    {
+      "description": "Third-party updates once a week; flakeyard is exempt below (FY-0028)",
+      "matchPackageNames": ["*"],
+      "schedule": ["* * * * 1"]
+    },
+    {
+      "description": "Updates of CI files only change this repository's CI: type ci, no release (FY-0007, FY-0024)",
+      "matchFileNames": [".github/workflows/**", ".github/actions/**"],
+      "semanticCommitType": "ci"
+    },
+    {
+      "description": "Actions and reusable workflows: full SHA with a version comment (FY-0030)",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    },
+    {
+      "description": "Runner images are changed deliberately, like the nixpkgs branch (FY-0023, FY-0026)",
+      "matchDatasources": ["github-runners"],
+      "enabled": false
+    },
+    {
+      "description": "Flake inputs: new commits of the locked ref, one PR per input, no release dates (FY-0016, FY-0028)",
+      "matchManagers": ["nix"],
+      "minimumReleaseAge": null,
+      "updateNotScheduled": false,
+      "commitMessageTopic": "flake input {{depName}}",
+      "prBodyNotes": [
+        "Changes: {{{packageName}}}/compare/{{{currentDigest}}}...{{{newDigest}}}"
+      ]
+    },
+    {
+      "description": "Flake inputs: every update type except a new commit of the locked ref is disabled, listed in full because a rule without matchUpdateTypes would disable the dependency itself (FY-0016, FY-0026)",
+      "matchManagers": ["nix"],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "rollback",
+        "bump",
+        "lockfileUpdate",
+        "lockFileMaintenance",
+        "replacement"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Presets: only exact tags of immutable releases, never the moving vX tag (FY-0028)",
+      "matchManagers": ["renovate-config"],
+      "allowedVersions": "/^v\\d+\\.\\d+\\.\\d+$/"
+    },
+    {
+      "description": "flakeyard repositories: at once, including 0.y.z pre-releases (FY-0028, FY-0024)",
+      "matchPackageNames": [
+        "flakeyard/**",
+        "https://github.com/flakeyard/**",
+        "ghcr.io/flakeyard/**"
+      ],
+      "minimumReleaseAge": null,
+      "ignoreUnstable": false,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Release notes of flakeyard flake inputs (FY-0016)",
+      "matchManagers": ["nix"],
+      "matchPackageNames": ["https://github.com/flakeyard/**"],
+      "prBodyNotes": ["Releases: {{{packageName}}}/releases"]
+    },
+    {
+      "description": "Majors break compatibility (FY-0024)",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["breaking"]
+    },
+    {
+      "description": "Before 1.0.0 a minor version breaks compatibility (FY-0024)",
+      "matchUpdateTypes": ["minor"],
+      "matchCurrentVersion": "<1.0.0",
+      "addLabels": ["breaking"]
+    }
+  ],
+  "logLevelRemap": [
+    {
+      "matchMessage": "/did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional/",
+      "newLogLevel": "info"
+    }
+  ]
+}

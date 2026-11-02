@@ -15,6 +15,7 @@
             ];
             scripts = ../../scripts;
             inherit presets;
+            RENOVATE_SCHEMA = "${pkgs.renovate}/lib/node_modules/renovate/renovate-schema.json";
           }
           ''
             # Renovate writes its cache under HOME.

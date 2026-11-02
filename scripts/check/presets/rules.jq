@@ -1,10 +1,41 @@
 # Rules for the presets and configuration files that Renovate's validator
 # cannot express. problems(KIND) gives one message per broken rule of its
-# input, a file of KIND that the validator accepted.
+# input, a file of KIND that the validator accepted. $schema holds the JSON
+# schema of the Renovate that runs the check, as --slurpfile gives it.
 
 # The only keys org-inherited-config.json may hold, with the values of the
 # organization settings in the Mend Developer Portal (FY-0029).
 def onboarding_settings: {onboarding: false, requireConfig: "required"};
+
+# Settings of default.json that decisions require, with the reason.
+def required_settings: [
+  {path: ["automerge"], value: false, reason: "no checks are required yet (FY-0007, FY-0022)"},
+  {path: ["dependencyDashboardApproval"], value: false, reason: "updates arrive as pull requests (FY-0028)"},
+  {path: ["minimumReleaseAge"], value: "3 days", reason: "FY-0028"},
+  {path: ["minimumReleaseAgeBehaviour"], value: "timestamp-optional", reason: "nothing is held back forever (FY-0028)"},
+  {path: ["lockFileMaintenance", "enabled"], value: false, reason: "FY-0016"},
+  {path: ["nix", "enabled"], value: true, reason: "flake inputs are updated (FY-0016)"},
+  {path: ["copier", "enabled"], value: false, reason: "the Mend app runs no Copier tasks (FY-0029)"}
+];
+
+# The only update type of flake inputs (FY-0016, FY-0026).
+def flake_input_update_type: "digest";
+
+# The directory of test fixtures, which pin old versions on purpose.
+def fixture_paths: "**/fixture/**";
+
+# How a description names the decision behind its rule.
+def adr_pattern: "FY-[0-9]{4}";
+
+# Update types that only Renovate versions newer than that of flake.lock
+# know. The Mend app may run them, so the preset disables them ahead.
+def newer_update_types: ["lockfileUpdate"];
+
+# update_types: the update types that the Renovate of $schema knows.
+def update_types: [$schema[0].definitions.matchUpdateTypes | .. | .enum? // empty] | first // [];
+
+# default_ignore_paths: what ignorePaths is when a config does not set it.
+def default_ignore_paths: $schema[0].definitions.ignorePaths.default;
 
 # unexpected_keys(ALLOWED): the keys of the input that the object ALLOWED
 # does not have.
@@ -21,7 +52,42 @@ def inherited_problems:
   (differing_values(onboarding_settings)
     | "\(.key) must be \(.value | tojson) (FY-0029)");
 
+# Rules of every preset: no built-in presets, no allow-list of managers, and
+# every package rule names its decision.
+def preset_problems:
+  (if has("enabledManagers") then "enabledManagers turns off every other manager without a warning" else empty end),
+  (.packageRules // [] | to_entries[]
+    | select(.value.description // "" | test(adr_pattern) | not)
+    | "packageRules[\(.key)] has no description naming its FY decision");
+
+# nix_rules_disabling: the package rules that disable flake inputs.
+def nix_rules_disabling: .packageRules // [] | .[] | select(.matchManagers == ["nix"] and .enabled == false);
+
+# flake_input_problems: every update type of flake inputs but one is
+# disabled, by name: a rule without matchUpdateTypes disables the inputs
+# themselves.
+def flake_input_problems:
+  (update_types - [flake_input_update_type]) as $unwanted
+  | [nix_rules_disabling | .matchUpdateTypes // [] | .[]] as $disabled
+  | (if update_types == [] then "the schema of Renovate lists no update types" else empty end),
+    (nix_rules_disabling | select(has("matchUpdateTypes") | not)
+      | "a rule disables flake inputs instead of their update types (FY-0016)"),
+    ($unwanted - $disabled | .[] | "update type \(.) of flake inputs is not disabled (FY-0016)"),
+    ($disabled - $unwanted - newer_update_types | .[]
+      | "update type \(.) of flake inputs must not be disabled (FY-0016)");
+
+def default_problems:
+  preset_problems,
+  (if has("extends") then "default.json must not extend presets (FY-0029)" else empty end),
+  (. as $config | required_settings[] as $setting
+    | select($config | getpath($setting.path) != $setting.value)
+    | "\($setting.path | join(".")) must be \($setting.value | tojson): \($setting.reason)"),
+  (default_ignore_paths + [fixture_paths] - .ignorePaths | .[]
+    | "ignorePaths must contain \(.)"),
+  flake_input_problems;
+
 def problems($kind):
   if $kind == "inherited" then inherited_problems
+  elif $kind == "default" then default_problems
   else "unknown kind of file \($kind)"
   end;

@@ -6,6 +6,84 @@ the [decisions][decisions] of flakeyard require and add no policy of their own.
 
 Work in progress: the presets are not released yet.
 
+## Usage
+
+A generated project, or a repository that is not a flakeyard product, extends
+the default preset in its `renovate.json`:
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>flakeyard/renovate-config#v0.1.0"]
+}
+```
+
+Pin the preset by the tag `vX.Y.Z` of a release. Releases are immutable, so the
+tag cannot move; the moving tag `vX` and branches must not be used
+([FY-0028][fy-0028]). New releases of the preset arrive as Renovate pull
+requests, like any other update.
+
+- Test fixtures belong under a directory named `fixture`; the preset ignores
+  every path that contains one, so that fixtures keep their old versions.
+- `ignorePaths` is replaced, not merged: a repository that sets its own must
+  repeat `**/node_modules/**`, `**/bower_components/**` and `**/fixture/**`.
+
+## Rules
+
+`default.json` sets every rule itself and extends no built-in preset, so that a
+new Renovate version cannot change them ([FY-0029][fy-0029]). Every package rule
+names its decision in its `description`.
+
+- **Pull requests.** Every update is a pull request without approval on the
+  Dependency Dashboard and without automerge; branches are rebased when they
+  fall behind. The Dependency Dashboard lists pending updates.
+- **Commits and labels.** Commit messages are `chore(deps): ...`, or
+  `ci(deps): ...` for files under `.github/workflows/` and `.github/actions/`
+  ([FY-0007][fy-0007]). Pull requests get the label `dependencies`, majors and
+  minor updates below `1.0.0` also `breaking`, fixes of security alerts
+  `security`.
+- **Schedule and age.** Third-party updates are proposed on Mondays (UTC), 3
+  days after their release. Updates of flakeyard's own actions, workflows, flake
+  inputs, presets and images are proposed at any time and at once, `0.y.z`
+  pre-releases included. Updates without a release date are not held back
+  ([FY-0028][fy-0028]).
+- **Actions and workflows.** References are full commit SHAs with a version
+  comment; references by tag are pinned. Runner labels such as `ubuntu-24.04`
+  are not updated ([FY-0030][fy-0030]).
+- **Flake inputs.** Only new commits of the locked `ref`, one pull request per
+  input, with a link that compares the commits and, for flakeyard inputs, a link
+  to the releases. Every other update type is disabled by name, including those
+  of Renovate versions newer than the one of `flake.lock`; lock file maintenance
+  is off ([FY-0016][fy-0016], [FY-0026][fy-0026]).
+- **Presets.** Only exact tags `vX.Y.Z`, never `vX` ([FY-0028][fy-0028]).
+- **Other managers.** Every manager that Renovate enables by default runs, such
+  as the one for the dev container image in `devcontainer.json`
+  ([FY-0012][fy-0012]); Copier is off, because the Mend app does not run the
+  tasks of templates.
+
+## Limits
+
+- The minimum release age delays an update only by the date its datasource
+  reports. A tag pushed without a GitHub release, with an old commit date,
+  passes at once, and updates without a date, such as flake inputs and images on
+  the GitHub Container Registry, get no delay. The age protects against a
+  compromised release that is noticed and withdrawn, not against a compromised
+  upstream repository.
+- Fixes of vulnerabilities skip the age and the schedule only when Renovate
+  receives an alert for them. Actions pinned by SHA, flake inputs and images
+  receive none: start such an update from the Dependency Dashboard.
+- The Mend-hosted app chooses the Renovate version. The checks and tests here
+  use the Renovate of `flake.lock`, 44.79.2; the version Mend last ran is not
+  recorded yet.
+
+## Public API
+
+Releases follow [semantic versioning][versioning] ([FY-0024][fy-0024]). The
+public API is the names of the presets outside `internal/` and the rules they
+set explicitly that change which updates are proposed, grouped or merged
+automatically, or which commit types they propose. Defaults of the Renovate
+version that runs them are not part of it.
+
 ## Inherited configuration
 
 The Mend-hosted Renovate app reads `org-inherited-config.json` from `main` of
@@ -62,3 +140,12 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0022-bootstrap.md
 [fy-0028]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0028-supply-chain.md
+[fy-0007]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0007-branching-and-releases.md
+[fy-0012]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0012-develop-in-container.md
+[fy-0024]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0024-versioning-and-support.md
+[fy-0030]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0030-actions-workflows-and-release-bot.md
+[versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
