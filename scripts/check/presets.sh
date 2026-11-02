@@ -6,7 +6,7 @@
 # express. Prints every problem; fails when there is one. Inputs
 # (environment): RENOVATE_SCHEMA, the JSON schema of the Renovate that runs.
 set -euo pipefail
-shopt -s inherit_errexit
+shopt -s inherit_errexit nullglob
 
 repository=$1
 rules_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/presets" && pwd)
@@ -59,10 +59,25 @@ check_default_preset() {
   validate_repository "$default_preset" && check_rules default "$default_preset"
 }
 
+# check_internal_presets: the presets of flakeyard repositories, one per kind.
+check_internal_presets() {
+  local presets=(internal/*.json) preset failed=0
+  if ((${#presets[@]} == 0)); then
+    echo "::error::There are no presets in internal/."
+    return 1
+  fi
+  validate_repository "${presets[@]}" || failed=1
+  for preset in "${presets[@]}"; do
+    check_rules internal "$preset" || failed=1
+  done
+  return "$failed"
+}
+
 cd -- "$repository"
 failed=0
 check_inherited_config || failed=1
 check_default_preset || failed=1
+check_internal_presets || failed=1
 if ((failed)); then
   echo "::error::The presets or configuration files have problems."
   exit 1

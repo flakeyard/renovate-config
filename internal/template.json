@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "flakeyard template repositories: default rules, released files are fix",
+  "extends": ["/default"],
+  "packageRules": [
+    {
+      "description": "Generated files (FY-0007)",
+      "matchFileNames": ["template/**"],
+      "semanticCommitType": "fix"
+    }
+  ]
+}

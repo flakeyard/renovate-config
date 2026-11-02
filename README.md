@@ -23,6 +23,46 @@ tag cannot move; the moving tag `vX` and branches must not be used
 ([FY-0028][fy-0028]). New releases of the preset arrive as Renovate pull
 requests, like any other update.
 
+A flakeyard repository extends the preset of its kind instead, which extends the
+default preset at the same tag and makes updates of the files that consumers
+receive `fix(deps)`, so that they are released ([FY-0007][fy-0007]):
+
+| Preset              | Repositories | `fix(deps)` for                   |
+| ------------------- | ------------ | --------------------------------- |
+| `internal/action`   | `action-*`   | `action.yml`, `flake.nix`         |
+| `internal/atom`     | `atom-*`     | nothing                           |
+| `internal/image`    | `image-*`    | `flake.nix`                       |
+| `internal/template` | `template-*` | `template/**`                     |
+| `internal/workflow` | `workflow-*` | `.github/actions/**`, `flake.nix` |
+
+Consumers of an atom follow every input of it, so its updates are not released.
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>flakeyard/renovate-config//internal/action#v0.1.0"]
+}
+```
+
+`.github` and `decisions` use the default preset. The presets in `internal/` are
+not part of the public API and change with the flakeyard repositories. A
+`workflow-*` repository also raises its product workflow, which a shared rule
+cannot name ([FY-0003][fy-0003]):
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>flakeyard/renovate-config//internal/workflow#v0.1.0"],
+  "packageRules": [
+    {
+      "description": "The product workflow (FY-0007, FY-0030)",
+      "matchFileNames": [".github/workflows/release.yaml"],
+      "semanticCommitType": "fix"
+    }
+  ]
+}
+```
+
 - Test fixtures belong under a directory named `fixture`; the preset ignores
   every path that contains one, so that fixtures keep their old versions.
 - `ignorePaths` is replaced, not merged: a repository that sets its own must
@@ -149,3 +189,5 @@ are released:
 [fy-0030]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0030-actions-workflows-and-release-bot.md
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
+[fy-0003]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md

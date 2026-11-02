@@ -61,6 +61,12 @@ default, a flake input pinned|default.json|nix_disabled_types -= ["pin"]|update 
 default, new commits disabled|default.json|nix_disabled_types += ["digest"]|update type digest of flake inputs must not be disabled
 default, flake inputs disabled|default.json|nix_disabling_everything|a rule disables flake inputs instead
 default, an invalid option|default.json|.minimumReleaseAge = 3|Configuration Error
+internal, no default|internal/action.json|del(.extends)|must extend exactly ["/default"]
+internal, a built-in preset|internal/image.json|.extends += ["config:recommended"]|must extend exactly ["/default"]
+internal, the default by tag|internal/atom.json|.extends = ["github>flakeyard/renovate-config#v0.1.0"]|must extend exactly ["/default"]
+internal, a rule without its decision|internal/template.json|.packageRules[0].description = "files"|packageRules[0] has no description
+internal, enabledManagers|internal/workflow.json|.enabledManagers = ["github-actions"]|enabledManagers turns off
+internal, an invalid option|internal/action.json|.packageRules[0].semanticCommitType = 1|Configuration Error
 CASES
 
 # A filter that fails in rules.jq fails the check instead of passing it.
@@ -70,6 +76,12 @@ chmod -R u+w "$work/scripts"
 printf 'def problems(kind): error("broken");\n' >"$work/scripts/check/presets/rules.jq"
 run "presets: broken rules" fail "$work/scripts/check/presets.sh" "$work/repo"
 expect message "the rules could not be applied"
+finish
+
+setup
+rm -r -- "$work/repo/internal"
+run "presets: no internal presets" fail check
+expect message "There are no presets in internal/"
 finish
 
 setup

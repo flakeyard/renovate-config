@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "flakeyard action repositories: default rules, released files are fix",
+  "extends": ["/default"],
+  "packageRules": [
+    {
+      "description": "What consumers run: the action and the tools of its flake (FY-0007, FY-0030)",
+      "matchFileNames": ["action.yml", "flake.nix"],
+      "semanticCommitType": "fix"
+    }
+  ]
+}
