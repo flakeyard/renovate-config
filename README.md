@@ -8,7 +8,10 @@ Work in progress: the presets are not released yet.
 
 ## Development
 
-- `nix flake check` checks formatting (`nix fmt`).
+- `nix flake check` checks formatting (`nix fmt`) and the scripts.
+
+CI runs it on both architectures. Releases are made by release-please through
+`flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
 
 ## Bootstrap
 
@@ -21,6 +24,9 @@ are released:
 - pull request titles are checked by the reviewer (provider: `workflow-check`);
 - rulesets require no status checks, so the checks of this repository's CI are
   not enforced before a merge (provider: `workflow-check`);
+- the jobs `pending` and `required` of `.github/workflows/test.yaml` and
+  `.github/scripts/commit-status.sh` and `required.sh` are a copy shared with
+  the other bootstrapped repositories (provider: `workflow-check`);
 - OpenSSF Scorecard is not run (provider: `workflow-check`);
 - dependency updates are made by hand, following [FY-0016][fy-0016] and
   [FY-0028][fy-0028], while Renovate is not configured (provider:
