@@ -1,0 +1,3 @@
+{
+  "extends": ["github>flakeyard/workflow-release#v0.1.0"]
+}

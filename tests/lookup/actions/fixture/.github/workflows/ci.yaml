@@ -1,0 +1,19 @@
+# References in the forms that flakeyard uses, at older versions; actions
+# and workflows by SHA with their version, an action by tag, and an action
+# of the repository by $/.
+name: ci
+
+on: push
+
+permissions: {}
+
+jobs:
+  release:
+    uses: flakeyard/workflow-release/.github/workflows/release.yaml@c066cd3f125589418c6b952c273293c5f655c8f7 # v0.1.0
+
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/setup-node@v4.0.0
+      - uses: $/.github/actions/local
