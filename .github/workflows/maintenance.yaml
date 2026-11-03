@@ -27,11 +27,11 @@ jobs:
           SHA: ${{ github.sha }}
           STATE: pending
           CONTEXT: maintenance
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: >-
-          gh api --silent -X POST "repos/$REPO/statuses/$SHA"
-          -f state="$STATE" -f context="$CONTEXT" -f target_url="$RUN_URL"
-          -f description="GitHub Actions run"
+        run: |
+          run_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          gh api --silent -X POST "repos/$REPO/statuses/$SHA" \
+            -f state="$STATE" -f context="$CONTEXT" -f target_url="$run_url" \
+            -f description="GitHub Actions run"
 
   eol:
     name: End of life of the nixpkgs branch
@@ -65,8 +65,8 @@ jobs:
           SHA: ${{ github.sha }}
           STATE: ${{ needs.eol.result == 'success' && 'success' || 'failure' }}
           CONTEXT: maintenance
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: >-
-          gh api --silent -X POST "repos/$REPO/statuses/$SHA"
-          -f state="$STATE" -f context="$CONTEXT" -f target_url="$RUN_URL"
-          -f description="GitHub Actions run"
+        run: |
+          run_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          gh api --silent -X POST "repos/$REPO/statuses/$SHA" \
+            -f state="$STATE" -f context="$CONTEXT" -f target_url="$run_url" \
+            -f description="GitHub Actions run"
