@@ -1,5 +1,7 @@
 # renovate-config
 
+[![OpenSSF Scorecard][scorecard-badge]][scorecard-viewer]
+
 Renovate presets of flakeyard, consumed by every flakeyard repository and by
 projects generated from flakeyard templates. They encode the update rules that
 the [decisions][decisions] of flakeyard require and add no policy of their own.
@@ -145,10 +147,14 @@ without its own `renovate.json`. The checks reject any other key.
 - `nix run .#check-eol -- nixpkgs-eol` warns before the nixpkgs branch reaches
   its end of life ([FY-0026][fy-0026]).
 
-CI runs the checks on both architectures and the lookup tests with the commit
-under test, also weekly; the weekly workflow `maintenance.yaml`, which is not a
-required check, runs `check-eol`. Releases are made by release-please through
-`flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
+CI, `test.yaml`, runs the lookup tests with the commit under test, also weekly,
+and then calls [workflow-check][workflow-check], which builds the checks of the
+flake on both architectures and checks pull request titles, `renovate.json` and
+the immutable release behind its preset tag ([FY-0031][fy-0031]). The weekly
+workflow `maintenance.yaml`, which is not a required check, runs `check-eol`.
+`scorecard.yaml` runs OpenSSF Scorecard through
+[workflow-scorecard][workflow-scorecard]. Releases are made by release-please
+through `flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
 
 This repository extends its own default preset by the tag of its latest release,
 so every release comes back as a Renovate pull request here first. Read the job
@@ -163,16 +169,10 @@ are released:
 
 - actionlint, zizmor, shellcheck, shfmt, statix, deadnix, Prettier,
   markdownlint, typos and `reuse lint` run locally before every pull request
-  (provider: `workflow-check` and the atoms);
-- pull request titles are checked by the reviewer (provider: `workflow-check`);
+  (provider: the atoms);
 - rulesets require no status checks, so the checks of this repository's CI are
-  not enforced before a merge (provider: `workflow-check`);
-- the jobs `pending` and `required` of `.github/workflows/test.yaml` and
-  `.github/scripts/commit-status.sh` and `required.sh` are a copy shared with
-  the other bootstrapped repositories (provider: `workflow-check`);
-- CI does not check that the tag of the preset in `renovate.json` belongs to an
-  immutable release ([FY-0028][fy-0028]) (provider: `workflow-check`);
-- OpenSSF Scorecard is not run (provider: `workflow-check`).
+  not enforced before a merge, until every repository has adopted
+  workflow-check.
 
 ## License
 
@@ -200,3 +200,11 @@ are released:
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
 [fy-0003]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md
+[fy-0031]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0031-check-pull-requests-and-pushes-with-workflow-check.md
+[workflow-check]: https://github.com/flakeyard/workflow-check
+[workflow-scorecard]: https://github.com/flakeyard/workflow-scorecard
+[scorecard-badge]:
+  https://api.scorecard.dev/projects/github.com/flakeyard/renovate-config/badge
+[scorecard-viewer]:
+  https://scorecard.dev/viewer/?uri=github.com/flakeyard/renovate-config
