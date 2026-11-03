@@ -86,11 +86,38 @@ def default_problems:
     | "ignorePaths must contain \(.)"),
   flake_input_problems;
 
+# The files whose updates each internal preset gives a commit type: fix for
+# the files consumers receive, ci for those that only check the repository
+# (FY-0007). The default preset gives the rest theirs.
+def commit_types: {
+  "internal/action.json": {fix: ["action.yml", "flake.nix"]},
+  "internal/atom.json": {},
+  "internal/image.json": {fix: ["flake.nix"]},
+  "internal/template.json": {fix: ["template/**"]},
+  "internal/workflow.json": {fix: [".github/actions/**"], ci: ["flake.nix"]}
+};
+
+# typed_files(TYPE): the files that the package rules of the input give the
+# commit type TYPE.
+def typed_files($type):
+  [.packageRules // [] | .[] | select(.semanticCommitType == $type) | .matchFileNames // [] | .[]] | unique;
+
+def commit_type_problems:
+  commit_types[input_filename] as $expected
+  | if $expected == null then "\(input_filename) has no commit types in rules.jq"
+    else ("fix", "ci") as $type
+      | ($expected[$type] // [] | unique) as $required
+      | typed_files($type) as $typed
+      | select($typed != $required)
+      | "\($type) is given to \($typed | tojson) instead of \($required | tojson) (FY-0007)"
+    end;
+
 # The presets of flakeyard repositories add rules to the default preset,
 # which they extend by a reference relative to their own tag.
 def internal_problems:
   preset_problems,
-  (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end);
+  (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end),
+  commit_type_problems;
 
 # How a repository extends a preset: by the exact tag of a release, never by
 # the moving tag vX, a branch or a reference relative to the repository

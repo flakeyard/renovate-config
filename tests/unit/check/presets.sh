@@ -71,6 +71,10 @@ internal, a built-in preset|internal/image.json|.extends += ["config:recommended
 internal, the default by tag|internal/atom.json|.extends = ["github>flakeyard/renovate-config#v0.1.0"]|must extend exactly ["/default"]
 internal, a rule without its decision|internal/template.json|.packageRules[0].description = "files"|packageRules[0] has no description
 internal, enabledManagers|internal/workflow.json|.enabledManagers = ["github-actions"]|enabledManagers turns off
+internal, the flake of a workflow released|internal/workflow.json|.packageRules[0].matchFileNames += ["flake.nix"]|fix is given to [".github/actions/**","flake.nix"] instead of [".github/actions/**"]
+internal, the flake of a workflow not ci|internal/workflow.json|del(.packageRules[1])|ci is given to [] instead of ["flake.nix"]
+internal, an action not released|internal/action.json|.packageRules[0].matchFileNames -= ["action.yml"]|fix is given to ["flake.nix"] instead of ["action.yml","flake.nix"]
+internal, an atom released|internal/atom.json|.packageRules = [{description: "FY-0007", matchFileNames: ["flake.nix"], semanticCommitType: "fix"}]|fix is given to ["flake.nix"] instead of []
 repository, no preset|renovate.json|del(.extends)|must extend a preset of this repository
 repository, the moving tag|renovate.json|.extends = ["github>flakeyard/renovate-config#v0"]|is not a preset of this repository by the tag of a release
 repository, a branch|renovate.json|.extends = ["github>flakeyard/renovate-config#main"]|is not a preset of this repository by the tag of a release

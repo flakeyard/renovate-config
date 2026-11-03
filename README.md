@@ -27,15 +27,19 @@ A flakeyard repository extends the preset of its kind instead, which extends the
 default preset at the same tag and makes updates of the files that consumers
 receive `fix(deps)`, so that they are released ([FY-0007][fy-0007]):
 
-| Preset              | Repositories | `fix(deps)` for                   |
-| ------------------- | ------------ | --------------------------------- |
-| `internal/action`   | `action-*`   | `action.yml`, `flake.nix`         |
-| `internal/atom`     | `atom-*`     | nothing                           |
-| `internal/image`    | `image-*`    | `flake.nix`                       |
-| `internal/template` | `template-*` | `template/**`                     |
-| `internal/workflow` | `workflow-*` | `.github/actions/**`, `flake.nix` |
+| Preset              | Repositories | `fix(deps)` for           |
+| ------------------- | ------------ | ------------------------- |
+| `internal/action`   | `action-*`   | `action.yml`, `flake.nix` |
+| `internal/atom`     | `atom-*`     | nothing                   |
+| `internal/image`    | `image-*`    | `flake.nix`               |
+| `internal/template` | `template-*` | `template/**`             |
+| `internal/workflow` | `workflow-*` | `.github/actions/**`      |
 
 Consumers of an atom follow every input of it, so its updates are not released.
+The flake of a workflow repository only checks and tests it, so
+`internal/workflow` makes updates of `flake.nix` `ci(deps)`.
+`scripts/check/presets/rules.jq` holds the same table and fails when a preset
+differs from it.
 
 ```json
 {
