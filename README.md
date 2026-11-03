@@ -169,10 +169,7 @@ are released:
 
 - actionlint, zizmor, shellcheck, shfmt, statix, deadnix, Prettier,
   markdownlint, typos and `reuse lint` run locally before every pull request
-  (provider: the atoms);
-- rulesets require no status checks, so the checks of this repository's CI are
-  not enforced before a merge, until every repository has adopted
-  workflow-check.
+  (provider: the atoms).
 
 ## License
 
