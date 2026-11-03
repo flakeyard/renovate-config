@@ -1,64 +1,27 @@
-# CI of this repository: the checks of the flake on both architectures and the
-# lookup tests of the presets. Weekly, because the lookup tests depend on the
-# releases of what their fixtures pin.
+# CI of this repository: the lookup tests of the presets, then workflow-check,
+# which builds the checks of the flake on both architectures. Weekly, because
+# the lookup tests depend on the releases of what their fixtures pin.
 name: test
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited] # edited: the title check
   push:
     branches: [main, "release/v*"]
   schedule:
     - cron: "53 4 * * 1"
-  workflow_dispatch:
+  workflow_dispatch: # dispatched checks of release pull requests (FY-0030)
 
 permissions: {}
 
 concurrency:
   group: test-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # A title or description edit must not cancel a long run.
+  cancel-in-progress: >-
+    ${{ github.event_name == 'pull_request'
+        && github.event.action != 'edited' }}
 
 jobs:
-  pending:
-    name: Report pending
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      statuses: write # commit status of a dispatched run
-    steps:
-      - shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-          STATE: pending
-          CONTEXT: required
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        # The script is not checked out yet; this is its one call.
-        run: >-
-          gh api --silent -X POST "repos/$REPO/statuses/$SHA"
-          -f state="$STATE" -f context="$CONTEXT" -f target_url="$RUN_URL"
-          -f description="GitHub Actions run"
-
-  check:
-    name: Check on ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: flakeyard/action-setup-nix@a90eeb051e85033f5d3c3e40dd213a585f34ec8d # v0.1.1
-      - name: Check the flake
-        shell: bash
-        run: nix flake check --no-update-lock-file --print-build-logs
-
   # Renovate reads the presets from GitHub, at the commit under test.
   lookup:
     name: Lookup tests
@@ -80,31 +43,18 @@ jobs:
           RENOVATE_GITHUB_COM_TOKEN: ${{ github.token }}
         run: nix run --no-update-lock-file .#check-lookup -- "$REF" tests/lookup/*/
 
-  required:
-    name: required
-    needs: [pending, check, lookup]
-    if: always()
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
+  check:
+    needs: [lookup]
+    # Dispatched runs post their final status on every outcome.
+    if: ${{ !cancelled() || github.event_name == 'workflow_dispatch' }}
+    uses: flakeyard/workflow-check/.github/workflows/check.yaml@30e031ba81beb738ab4cbe18425a8f4f7a6af552 # v0.1.0
     permissions:
-      contents: read
-      statuses: write # commit status of a dispatched run
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - id: result
-        shell: bash
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: .github/scripts/required.sh
-      - if: always() && github.event_name == 'workflow_dispatch'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-          STATE: ${{ steps.result.outcome == 'success' && 'success' || 'failure' }}
-          CONTEXT: required
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: .github/scripts/commit-status.sh
+      actions: read # own job name and the jobs of the run
+      contents: read # repository files through the contents API, checkout
+      pull-requests: read # the title of the pull request
+      statuses: write # commit statuses of dispatched runs
+    with:
+      needs: ${{ toJSON(needs) }}
+      flake: .
+      expect-checks: '["formatting","presets","scripts"]'
+      renovate-presets: '["flakeyard/renovate-config"]'

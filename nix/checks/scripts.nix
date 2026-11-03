@@ -1,5 +1,5 @@
-# The scripts of the apps and of .github pass shellcheck, and the scripts their
-# unit tests, whose suites are at the paths of the scripts under tests/unit.
+# The scripts of the apps pass shellcheck and their unit tests, whose suites
+# are at the paths of the scripts under tests/unit.
 {
   perSystem =
     { pkgs, presets, ... }:
@@ -20,14 +20,9 @@
             unit = ../../tests/unit;
             inherit presets;
             RENOVATE_SCHEMA = "${pkgs.renovate}/lib/node_modules/renovate/renovate-schema.json";
-            # A store path name cannot start with a period.
-            github = builtins.path {
-              name = "github";
-              path = ../../.github;
-            };
           }
           ''
-            shellcheck "$scripts"/*/*.sh "$github"/scripts/*.sh
+            shellcheck "$scripts"/*/*.sh
             shellcheck -x "$unit"/lib.sh "$unit"/*/*.sh
             # The sandbox has no /usr/bin/env.
             cp -r "$scripts" scripts
