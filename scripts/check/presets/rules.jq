@@ -9,7 +9,7 @@ def onboarding_settings: {onboarding: false, requireConfig: "required"};
 
 # Settings of default.json that decisions require, with the reason.
 def required_settings: [
-  {path: ["automerge"], value: false, reason: "no checks are required yet (FY-0007, FY-0022)"},
+  {path: ["automerge"], value: false, reason: "no decision enables it; FY-0016 only allows it for atoms within a major version"},
   {path: ["dependencyDashboardApproval"], value: false, reason: "updates arrive as pull requests (FY-0028)"},
   {path: ["minimumReleaseAge"], value: "3 days", reason: "FY-0028"},
   {path: ["minimumReleaseAgeBehaviour"], value: "timestamp-optional", reason: "nothing is held back forever (FY-0028)"},
