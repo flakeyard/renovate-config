@@ -98,7 +98,12 @@ names its decision in its `description`.
   input, with a link that compares the commits and, for flakeyard inputs, a link
   to the releases. Every other update type is disabled by name, including those
   of Renovate versions newer than the one of `flake.lock`; lock file maintenance
-  is off ([FY-0016][fy-0016], [FY-0026][fy-0026]).
+  is off ([FY-0016][fy-0016], [FY-0026][fy-0026]). Pull requests of third-party
+  inputs are not updated outside their schedule (`updateNotScheduled: false`):
+  nixpkgs gets new commits several times a day, and each would replace the
+  commit under review and run the checks again. Such a pull request that falls
+  behind `main` waits for the next Monday to be rebased, or for "Update branch"
+  on GitHub.
 - **Presets.** Only exact tags `vX.Y.Z`, never `vX` ([FY-0028][fy-0028]).
 - **Other managers.** Every manager that Renovate enables by default runs, such
   as the one for the dev container image in `devcontainer.json`
