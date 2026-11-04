@@ -4,9 +4,14 @@
   "extends": ["/default"],
   "packageRules": [
     {
-      "description": "The composition of the product workflow and the tools of its flake (FY-0007, FY-0030); the product workflow file itself is raised in the repository config",
-      "matchFileNames": [".github/actions/**", "flake.nix"],
+      "description": "The composition of the product workflow (FY-0007, FY-0030); the product workflow file itself is raised in the repository config",
+      "matchFileNames": [".github/actions/**"],
       "semanticCommitType": "fix"
+    },
+    {
+      "description": "The flake only checks and tests the repository; consumers do not receive it (FY-0007)",
+      "matchFileNames": ["flake.nix"],
+      "semanticCommitType": "ci"
     }
   ]
 }
