@@ -41,7 +41,8 @@ jobs:
         shell: bash
         env:
           RENOVATE_GITHUB_COM_TOKEN: ${{ github.token }}
-        run: nix run --no-update-lock-file .#check-lookup -- "$REF" tests/lookup/*/
+        run: |
+          nix run --no-update-lock-file .#check-lookup -- "$REF" tests/lookup/*/
 
   check:
     needs: [lookup]
