@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/flakeyard/renovate-config/compare/v0.1.0...v0.1.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* make flake updates of workflow repositories ci ([#15](https://github.com/flakeyard/renovate-config/issues/15)) ([5b70367](https://github.com/flakeyard/renovate-config/commit/5b70367c2835f97fef4f0ec668f5f41638d0681b))
+
 ## 0.1.0 (2026-11-02)
 
 
