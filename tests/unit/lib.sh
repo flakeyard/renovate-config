@@ -9,9 +9,6 @@
 
 failed=0 passed=0 current=""
 
-# begin NAME: starts the case NAME, for a case that runs no single command.
-begin() { current=$1; }
-
 # still_passing: whether a case is running and has not failed yet.
 still_passing() { [[ -n $current ]]; }
 
@@ -35,7 +32,7 @@ captured() { cat -- "$work/out" "$work/err"; }
 run() {
   local name=$1 expected=$2 status=0
   shift 2
-  begin "$name"
+  current=$name
   # Without a command, the case would pass without testing anything.
   (($#)) || {
     report "no command to run"
@@ -46,13 +43,12 @@ run() {
 }
 
 # outcome EXPECTED STATUS: fails the case unless the exit status STATUS is the
-# EXPECTED outcome: ok (zero), fail (non-zero) or any.
+# EXPECTED outcome: ok (zero) or fail (non-zero).
 outcome() {
   local expected=$1 status=$2
   case $expected in
     ok) ((status == 0)) ;;
     fail) ((status != 0)) ;;
-    any) true ;;
     *) false ;;
   esac || report "expected $expected, exit $status: $(captured)"
 }
@@ -80,12 +76,10 @@ expect_output() {
   [[ $(printed) == "$text" ]] || report "printed '$(printed)', expected '$text'; stderr: $(cat -- "$work/err")"
 }
 
-# finish: counts the case as passed unless it failed, runs the suite's
-# on_finish hook if it has one, and removes $work.
+# finish: counts the case as passed unless it failed and removes $work.
 finish() {
   if still_passing; then passed=$((passed + 1)); fi
   current=""
-  if declare -F on_finish >/dev/null; then on_finish; fi
   rm -rf -- "$work"
 }
 
