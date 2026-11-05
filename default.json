@@ -49,7 +49,7 @@
       "pinDigests": true
     },
     {
-      "description": "Runner images are changed deliberately, like the nixpkgs branch (FY-0023, FY-0026)",
+      "description": "Runner images are changed deliberately, like the nixpkgs branch (action-setup-nix ADR-0001, FY-0026)",
       "matchDatasources": ["github-runners"],
       "enabled": false
     },
