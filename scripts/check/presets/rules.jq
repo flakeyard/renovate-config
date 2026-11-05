@@ -12,6 +12,7 @@ def required_settings: [
   {path: ["automerge"], value: false, reason: "no decision enables it; FY-0016 only allows it for atoms within a major version"},
   {path: ["dependencyDashboardApproval"], value: false, reason: "updates arrive as pull requests (FY-0028)"},
   {path: ["minimumReleaseAge"], value: "3 days", reason: "FY-0028"},
+  {path: ["prHourlyLimit"], value: 0, reason: "a release of flakeyard reaches every repository at once (FY-0028)"},
   {path: ["minimumReleaseAgeBehaviour"], value: "timestamp-optional", reason: "nothing is held back forever (FY-0028)"},
   {path: ["lockFileMaintenance", "enabled"], value: false, reason: "FY-0016"},
   {path: ["nix", "enabled"], value: true, reason: "flake inputs are updated (FY-0016)"},
