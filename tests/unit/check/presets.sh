@@ -61,7 +61,8 @@ default, lock file maintenance|default.json|.lockFileMaintenance.enabled = true|
 default, no flake inputs|default.json|del(.nix)|nix.enabled must be true
 default, copier|default.json|del(.copier)|copier.enabled must be false
 default, automerge|default.json|.automerge = true|automerge must be false
-default, fixtures updated|default.json|.ignorePaths -= ["**/fixture/**"]|ignorePaths must contain **/fixture/**
+default, fixture updated|default.json|.ignorePaths -= ["**/fixture/**"]|ignorePaths must contain **/fixture/**
+default, fixtures updated|default.json|.ignorePaths -= ["**/fixtures/**"]|ignorePaths must contain **/fixtures/**
 default, node modules updated|default.json|.ignorePaths = ["**/fixture/**"]|ignorePaths must contain **/node_modules/**
 default, a flake input pinned|default.json|nix_disabled_types -= ["pin"]|update type pin of flake inputs is not disabled
 default, new commits disabled|default.json|nix_disabled_types += ["digest"]|update type digest of flake inputs must not be disabled
