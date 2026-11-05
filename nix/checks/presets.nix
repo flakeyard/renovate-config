@@ -2,7 +2,12 @@
 # of scripts/check/presets/rules.jq, with the Renovate of flake.lock.
 {
   perSystem =
-    { pkgs, presets, ... }:
+    {
+      pkgs,
+      presets,
+      renovateSchema,
+      ...
+    }:
     {
       checks.presets =
         pkgs.runCommand "presets"
@@ -15,7 +20,7 @@
             ];
             scripts = ../../scripts;
             inherit presets;
-            RENOVATE_SCHEMA = "${pkgs.renovate}/lib/node_modules/renovate/renovate-schema.json";
+            RENOVATE_SCHEMA = renovateSchema;
           }
           ''
             # Renovate writes its cache under HOME.

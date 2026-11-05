@@ -1,6 +1,5 @@
 # mkApp { name, script } SETTINGS: the app NAME, which runs SCRIPT with
-# coreutils and the runtimeInputs of SETTINGS on PATH and the variables of
-# their environment exported. Values are strings, such as store paths.
+# coreutils and the runtimeInputs of SETTINGS on PATH.
 {
   perSystem =
     { lib, pkgs, ... }:
@@ -10,7 +9,6 @@
         {
           description,
           runtimeInputs ? [ ],
-          environment ? { },
         }:
         {
           type = "app";
@@ -18,7 +16,6 @@
             pkgs.writeShellApplication {
               inherit name;
               runtimeInputs = [ pkgs.coreutils ] ++ runtimeInputs;
-              runtimeEnv = environment;
               text = builtins.readFile script;
             }
           );

@@ -2,7 +2,12 @@
 # are at the paths of the scripts under tests/unit.
 {
   perSystem =
-    { pkgs, presets, ... }:
+    {
+      pkgs,
+      presets,
+      renovateSchema,
+      ...
+    }:
     {
       checks.scripts =
         pkgs.runCommand "script-tests"
@@ -19,7 +24,7 @@
             scripts = ../../scripts;
             unit = ../../tests/unit;
             inherit presets;
-            RENOVATE_SCHEMA = "${pkgs.renovate}/lib/node_modules/renovate/renovate-schema.json";
+            RENOVATE_SCHEMA = renovateSchema;
           }
           ''
             shellcheck "$scripts"/*/*.sh
