@@ -10,6 +10,7 @@
   "labels": ["dependencies"],
   "rebaseWhen": "behind-base-branch",
   "automerge": false,
+  "prHourlyLimit": 0,
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "internalChecksFilter": "strict",

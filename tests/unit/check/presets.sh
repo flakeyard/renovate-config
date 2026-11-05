@@ -55,6 +55,7 @@ default, enabledManagers|default.json|.enabledManagers = ["nix"]|enabledManagers
 default, a rule without its decision|default.json|.packageRules[0].description = "weekly"|packageRules[0] has no description
 default, dashboard approval|default.json|.dependencyDashboardApproval = true|dependencyDashboardApproval must be false
 default, a shorter age|default.json|.minimumReleaseAge = "1 day"|minimumReleaseAge must be "3 days"
+default, an hourly limit|default.json|del(.prHourlyLimit)|prHourlyLimit must be 0
 default, updates held back|default.json|.minimumReleaseAgeBehaviour = "timestamp-required"|minimumReleaseAgeBehaviour must be "timestamp-optional"
 default, lock file maintenance|default.json|.lockFileMaintenance.enabled = true|lockFileMaintenance.enabled must be false
 default, no flake inputs|default.json|del(.nix)|nix.enabled must be true

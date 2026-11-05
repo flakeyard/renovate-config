@@ -90,7 +90,9 @@ names its decision in its `description`.
   days after their release. Updates of flakeyard's own actions, workflows, flake
   inputs, presets and images are proposed at any time and at once, `0.y.z`
   pre-releases included. Updates without a release date are not held back
-  ([FY-0028][fy-0028]).
+  ([FY-0028][fy-0028]). Pull requests are not limited per hour
+  (`prHourlyLimit: 0`), so a release of flakeyard does not wait behind other
+  updates; Renovate's default of at most 10 open pull requests still applies.
 - **Actions and workflows.** References are full commit SHAs with a version
   comment; references by tag are pinned. Runner labels such as `ubuntu-24.04`
   are not updated ([FY-0030][fy-0030]).
