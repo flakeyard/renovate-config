@@ -4,7 +4,7 @@
   "extends": ["/default"],
   "packageRules": [
     {
-      "description": "Image contents (FY-0005, FY-0007)",
+      "description": "Image contents (image-devcontainer ADR-0001, FY-0007)",
       "matchFileNames": ["flake.nix"],
       "semanticCommitType": "fix"
     }

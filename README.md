@@ -161,11 +161,12 @@ without its own `renovate.json`. The checks reject any other key.
 CI, `test.yaml`, runs the lookup tests with the commit under test, also weekly,
 and then calls [workflow-check][workflow-check], which builds the checks of the
 flake on both architectures and checks pull request titles, `renovate.json` and
-the immutable release behind its preset tag ([FY-0031][fy-0031]). The weekly
-workflow `maintenance.yaml`, which is not a required check, runs `check-eol`.
-`scorecard.yaml` runs OpenSSF Scorecard through
-[workflow-scorecard][workflow-scorecard]. Releases are made by release-please
-through `flakeyard/workflow-release`; `0.y.z` releases are pre-releases.
+the immutable release behind its preset tag ([workflow-check
+ADR-0001][workflow-check-adr-0001]). The weekly workflow `maintenance.yaml`,
+which is not a required check, runs `check-eol`. `scorecard.yaml` runs OpenSSF
+Scorecard through [workflow-scorecard][workflow-scorecard]. Releases are made by
+release-please through `flakeyard/workflow-release`; `0.y.z` releases are
+pre-releases.
 
 This repository extends its own default preset by the tag of its latest release,
 so every release comes back as a Renovate pull request here first. Read the job
@@ -208,8 +209,8 @@ are released:
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
 [fy-0003]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md
-[fy-0031]:
-  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0031-check-pull-requests-and-pushes-with-workflow-check.md
+[workflow-check-adr-0001]:
+  https://github.com/flakeyard/workflow-check/blob/main/docs/adr/records/0001-check-pull-requests-and-pushes.md
 [workflow-check]: https://github.com/flakeyard/workflow-check
 [workflow-scorecard]: https://github.com/flakeyard/workflow-scorecard
 [scorecard-badge]:
