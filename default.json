@@ -17,7 +17,8 @@
   "ignorePaths": [
     "**/node_modules/**",
     "**/bower_components/**",
-    "**/fixture/**"
+    "**/fixture/**",
+    "**/fixtures/**"
   ],
   "lockFileMaintenance": {
     "enabled": false

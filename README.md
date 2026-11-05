@@ -67,10 +67,12 @@ cannot name ([FY-0003][fy-0003]):
 }
 ```
 
-- Test fixtures belong under a directory named `fixture`; the preset ignores
-  every path that contains one, so that fixtures keep their old versions.
+- Test fixtures belong under a directory named `fixture` or `fixtures`; the
+  preset ignores every path that contains one, so that fixtures keep their old
+  versions.
 - `ignorePaths` is replaced, not merged: a repository that sets its own must
-  repeat `**/node_modules/**`, `**/bower_components/**` and `**/fixture/**`.
+  repeat `**/node_modules/**`, `**/bower_components/**`, `**/fixture/**` and
+  `**/fixtures/**`.
 
 ## Rules
 

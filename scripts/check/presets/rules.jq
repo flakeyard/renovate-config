@@ -22,8 +22,9 @@ def required_settings: [
 # The only update type of flake inputs (FY-0016, FY-0026).
 def flake_input_update_type: "digest";
 
-# The directory of test fixtures, which pin old versions on purpose.
-def fixture_paths: "**/fixture/**";
+# The directories of test fixtures, which pin old versions on purpose: fixture
+# and the tests/fixtures of the organization's layout.
+def fixture_paths: ["**/fixture/**", "**/fixtures/**"];
 
 # How a description names the decision behind its rule.
 def adr_pattern: "FY-[0-9]{4}";
@@ -83,7 +84,7 @@ def default_problems:
   (. as $config | required_settings[] as $setting
     | select($config | getpath($setting.path) != $setting.value)
     | "\($setting.path | join(".")) must be \($setting.value | tojson): \($setting.reason)"),
-  (default_ignore_paths + [fixture_paths] - .ignorePaths | .[]
+  (default_ignore_paths + fixture_paths - .ignorePaths | .[]
     | "ignorePaths must contain \(.)"),
   flake_input_problems;
 
