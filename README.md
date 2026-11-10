@@ -85,9 +85,12 @@ names its decision in its `description`.
   fall behind. The Dependency Dashboard lists pending updates.
 - **Commits and labels.** Commit messages are `chore(deps): ...`, or
   `ci(deps): ...` for files under `.github/workflows/` and `.github/actions/`
-  ([FY-0007][fy-0007]). Pull requests get the label `dependencies`, majors and
-  minor updates below `1.0.0` also `breaking`, fixes of security alerts
-  `security`.
+  ([FY-0007][fy-0007]). Updates of `flakeyard/action-shell-lib` are
+  `fix(deps): ...` wherever they are pinned, so that every consumer releases
+  them ([FY-0035][fy-0035]); the rule follows the other commit types of the
+  preset, because a later rule wins. Pull requests get the label `dependencies`,
+  majors and minor updates below `1.0.0` also `breaking`, fixes of security
+  alerts `security`.
 - **Schedule and age.** Third-party updates are proposed on Mondays (UTC), 3
   days after their release. Updates of flakeyard's own actions, workflows, flake
   inputs, presets and images are proposed at any time and at once, `0.y.z`
@@ -208,6 +211,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0024-versioning-and-support.md
 [fy-0030]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0030-actions-workflows-and-release-bot.md
+[fy-0035]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0035-extract-logic-that-has-two-users.md
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
 [fy-0003]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md

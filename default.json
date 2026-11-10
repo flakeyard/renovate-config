@@ -97,6 +97,14 @@
       "schedule": ["at any time"]
     },
     {
+      "description": "Updates of the shared shell library are fix in every consumer, so that they are released; the rule follows the other commit types of this preset to win over them (FY-0035)",
+      "matchPackageNames": [
+        "flakeyard/action-shell-lib",
+        "https://github.com/flakeyard/action-shell-lib"
+      ],
+      "semanticCommitType": "fix"
+    },
+    {
       "description": "Release notes of flakeyard flake inputs (FY-0016)",
       "matchManagers": ["nix"],
       "matchPackageNames": ["https://github.com/flakeyard/**"],

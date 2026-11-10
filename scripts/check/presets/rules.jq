@@ -78,6 +78,34 @@ def flake_input_problems:
     ($disabled - $unwanted - newer_update_types | .[]
       | "update type \(.) of flake inputs must not be disabled (FY-0016)");
 
+# The names of the shared shell library in the managers that may pin it:
+# github-actions by owner and name, nix by URL (FY-0035).
+def shell_library_names: ["flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"];
+
+# The only keys of the rule that gives fix to the shell library: one more
+# condition would leave some of its updates out.
+def shell_library_rule_keys: ["description", "matchPackageNames", "semanticCommitType"];
+
+# gives_shell_library_fix: whether the input package rule gives fix to every
+# update of the shell library.
+def gives_shell_library_fix:
+  .semanticCommitType == "fix"
+  and (.matchPackageNames // [] | sort) == (shell_library_names | sort)
+  and (keys - shell_library_rule_keys == []);
+
+# typed_rule_indexes(SELECTION): the indexes of the package rules of the
+# input that give a commit type and hold SELECTION.
+def typed_rule_indexes(selection):
+  [.packageRules // [] | to_entries[] | select(.value | has("semanticCommitType") and selection) | .key];
+
+# shell_library_problems: updates of the shell library are fix, by a rule
+# after every other commit type of the preset, because a later rule wins.
+def shell_library_problems:
+  typed_rule_indexes(gives_shell_library_fix) as $fixes
+  | if $fixes == [] then "no package rule gives fix to every update of flakeyard/action-shell-lib (FY-0035)"
+    elif $fixes[-1] != typed_rule_indexes(true)[-1] then "the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type (FY-0035)"
+    else empty end;
+
 def default_problems:
   preset_problems,
   (if has("extends") then "default.json must not extend presets (FY-0029)" else empty end),
@@ -86,7 +114,8 @@ def default_problems:
     | "\($setting.path | join(".")) must be \($setting.value | tojson): \($setting.reason)"),
   (default_ignore_paths + fixture_paths - .ignorePaths | .[]
     | "ignorePaths must contain \(.)"),
-  flake_input_problems;
+  flake_input_problems,
+  shell_library_problems;
 
 # The files whose updates each internal preset gives a commit type: fix for
 # the files consumers receive, ci for those that only check the repository
