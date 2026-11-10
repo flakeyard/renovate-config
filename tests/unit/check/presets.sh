@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Unit tests of scripts/check/presets.sh: each case breaks one rule in a copy
-# of the presets. Inputs (environment): SCRIPTS, the scripts directory;
-# PRESETS, the JSON files of the repository.
+# of the presets. Inputs (environment): SHELL_LIB, the shell library; SCRIPTS,
+# the scripts directory; PRESETS, the JSON files of the repository;
+# RENOVATE_SCHEMA, the JSON schema of the Renovate that runs.
+# shellcheck disable=SC2154 # work comes from setup of the harness.
 set -uo pipefail
 export LC_ALL=C
 
 # shellcheck source-path=SCRIPTDIR source=../lib.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../lib.sh"
 
-setup() {
-  work=$(mktemp -d)
+# setup_presets: a case with a writable copy of the presets.
+setup_presets() {
+  setup
   cp -r "$PRESETS" "$work/repo"
   chmod -R u+w "$work/repo"
 }
@@ -28,21 +31,25 @@ change() {
   jq "$helpers $filter" "$file" >"$work/changed" && mv -- "$work/changed" "$file"
 }
 
-check() { "$SCRIPTS/check/presets.sh" "$work/repo"; }
+# check NAME EXPECTED: run the check on the copy, with the schema of Renovate.
+check() {
+  local name=$1 expected=$2
+  run "$name" "$expected" check/presets.sh RENOVATE_SCHEMA="$RENOVATE_SCHEMA" -- "$work/repo"
+}
 
-setup
-run "presets: the repository" ok check
+setup_presets
+check "presets: the repository" ok
 finish
 
-setup
+setup_presets
 change renovate.json '.extends = ["github>flakeyard/renovate-config//internal/workflow#v1.2.3"]'
-run "presets: an internal preset in renovate.json" ok check
+check "presets: an internal preset in renovate.json" ok
 finish
 
 while IFS='|' read -r name file filter message; do
-  setup
+  setup_presets
   change "$file" "$filter"
-  run "presets: $name" fail check
+  check "presets: $name" fail
   expect message "$message"
   finish
 done <<'CASES'
@@ -87,24 +94,25 @@ internal, an invalid option|internal/action.json|.packageRules[0].semanticCommit
 CASES
 
 # A filter that fails in rules.jq fails the check instead of passing it.
-setup
+setup_presets
 cp -r "$SCRIPTS" "$work/scripts"
 chmod -R u+w "$work/scripts"
 printf 'def problems(kind): error("broken");\n' >"$work/scripts/check/presets/rules.jq"
-run "presets: broken rules" fail "$work/scripts/check/presets.sh" "$work/repo"
+# run takes the script from the broken copy.
+code_root=$work/scripts check "presets: broken rules" fail
 expect message "the rules could not be applied"
 finish
 
-setup
+setup_presets
 rm -r -- "$work/repo/internal"
-run "presets: no internal presets" fail check
+check "presets: no internal presets" fail
 expect message "There are no presets in internal/"
 finish
 
-setup
+setup_presets
 printf 'not JSON\n' >"$work/repo/org-inherited-config.json"
-run "presets: inherited, not JSON" fail check
+check "presets: inherited, not JSON" fail
 expect message "could not be parsed"
 finish
 
-summary
+conclude

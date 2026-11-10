@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# Unit tests of scripts/check/eol.sh. Inputs (environment): SCRIPTS, the
-# scripts directory.
+# Unit tests of scripts/check/eol.sh. Inputs (environment): SHELL_LIB, the
+# shell library; SCRIPTS, the scripts directory.
+# shellcheck disable=SC2154 # work comes from setup of the harness.
 set -uo pipefail
 export LC_ALL=C
 
 # shellcheck source-path=SCRIPTDIR source=../lib.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../lib.sh"
 
-setup() { work=$(mktemp -d); }
-
 for case in "2026-10-29 ok supported" "2026-12-10 ok in 21 days" "2027-01-02 fail reached its end of life"; do
   read -r today expected message <<<"$case"
   setup
   printf '# comment\nnixos-26.05 2026-12-31\n' >"$work/eol"
-  run "eol: $today" "$expected" "$SCRIPTS/check/eol.sh" "$work/eol" "$today"
+  run "eol: $today" "$expected" check/eol.sh -- "$work/eol" "$today"
   expect message "$message"
   finish
 done
@@ -22,7 +21,7 @@ done
 while IFS='|' read -r name content message; do
   setup
   printf '%b' "$content" >"$work/eol"
-  run "eol: $name" fail "$SCRIPTS/check/eol.sh" "$work/eol" 2026-10-29
+  run "eol: $name" fail check/eol.sh -- "$work/eol" 2026-10-29
   expect message "$message"
   finish
 done <<'CASES'
@@ -38,18 +37,18 @@ CASES
 
 setup
 printf 'nixos-26.05 2026-12-31' >"$work/eol"
-run "eol: a last line without a newline" ok "$SCRIPTS/check/eol.sh" "$work/eol" 2026-10-29
+run "eol: a last line without a newline" ok check/eol.sh -- "$work/eol" 2026-10-29
 expect message "supported until 2026-12-31"
 finish
 
 setup
 printf 'nixos-26.05 2026-12-31\n' >"$work/eol"
-run "eol: an invalid today" fail "$SCRIPTS/check/eol.sh" "$work/eol" ""
+run "eol: an invalid today" fail check/eol.sh -- "$work/eol" ""
 expect message "'' is not a date"
 finish
 
 setup
-run "eol: a missing file" fail "$SCRIPTS/check/eol.sh" "$work/none"
+run "eol: a missing file" fail check/eol.sh -- "$work/none"
 finish
 
-summary
+conclude

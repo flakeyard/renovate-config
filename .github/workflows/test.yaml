@@ -1,6 +1,7 @@
-# CI of this repository: the lookup tests of the presets, then workflow-check,
-# which builds the checks of the flake on both architectures. Weekly, because
-# the lookup tests depend on the releases of what their fixtures pin.
+# CI of this repository: the lookup tests of the presets and the pin of the
+# shell library, then workflow-check, which builds the checks of the flake on
+# both architectures. Weekly, because the lookup tests depend on the releases
+# of what their fixtures pin.
 name: test
 
 on:
@@ -44,8 +45,18 @@ jobs:
         run: |
           nix run --no-update-lock-file .#check-lookup -- "$REF" tests/lookup/*/
 
+  # The unit tests run in a check of the flake, which takes the shell library
+  # at the commit of this step, so that the repository pins it once.
+  shell-lib:
+    name: Shell library
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - uses: flakeyard/action-shell-lib@4c8422d8a7fdb2b097b349f643efa8d196e0406b # v0.1.2
+
   check:
-    needs: [lookup]
+    needs: [lookup, shell-lib]
     # Dispatched runs post their final status on every outcome.
     if: ${{ !cancelled() || github.event_name == 'workflow_dispatch' }}
     uses: flakeyard/workflow-check/.github/workflows/check.yaml@be573996bc498dae2785bb0087e52cea34ae1b20 # v0.2.0
