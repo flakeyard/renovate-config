@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Unit tests of scripts/check/lookup.sh with a stub of renovate, which saves
 # the renovate.json of the fixture repository and writes the report $REPORT.
-# Inputs (environment): SCRIPTS, the scripts directory.
+# Inputs (environment): SHELL_LIB, the shell library; SCRIPTS, the scripts
+# directory.
+# shellcheck disable=SC2154 # work comes from setup of the harness.
 set -uo pipefail
 export LC_ALL=C
 
@@ -10,8 +12,10 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/../lib.sh"
 
 empty_report='{"problems": [], "repositories": {"local": {"problems": [], "packageFiles": {}}}}'
 
-setup() {
-  work=$(mktemp -d)
+# setup_lookup: a case with the stub of renovate first on PATH and one case of
+# the lookup tests.
+setup_lookup() {
+  setup
   mkdir -p "$work/bin" "$work/cases/one/fixture"
   # The sandbox of the check has no /usr/bin/env.
   printf '#!%s\n' "$BASH" >"$work/bin/renovate"
@@ -26,57 +30,60 @@ STUB
   echo default >"$work/cases/one/preset"
   echo 'include "lookup"; empty' >"$work/cases/one/expect.jq"
   echo 'def nothing: empty;' >"$work/cases/lookup.jq"
-  export PATH=$work/bin:$PATH CONFIG=$work/config REPORT=$empty_report
-  export RENOVATE_GITHUB_COM_TOKEN=token
+  apply PATH="$work/bin:$TESTING_BIN:$HOST_PATH" CONFIG="$work/config" REPORT="$empty_report"
 }
 
-lookup() { "$SCRIPTS/check/lookup.sh" "$@"; }
+# lookup NAME EXPECTED ARG...: run the lookup with a token and ARG.
+lookup() {
+  local name=$1 expected=$2
+  shift 2
+  run "$name" "$expected" check/lookup.sh RENOVATE_GITHUB_COM_TOKEN=token -- "$@"
+}
 
 # expect_extends PRESET: the renovate.json of the fixture repository extends
 # exactly PRESET.
 expect_extends() {
   local preset=$1
-  jq -e --arg preset "$preset" '. == {extends: [$preset]}' "$CONFIG" >/dev/null ||
-    report "renovate.json is $(cat -- "$CONFIG")"
+  jq -e --arg preset "$preset" '. == {extends: [$preset]}' "$work/config" >/dev/null ||
+    report "renovate.json is $(cat -- "$work/config")"
 }
 
-setup
-run "lookup: the default preset" ok lookup 0123abc "$work/cases/one/"
-expect output "passed: $work/cases/one"
+setup_lookup
+lookup "lookup: the default preset" ok 0123abc "$work/cases/one/"
+expect stdout "passed: $work/cases/one"
 expect_extends "github>flakeyard/renovate-config#0123abc"
 finish
 
-setup
+setup_lookup
 echo internal/action >"$work/cases/one/preset"
-run "lookup: an internal preset" ok lookup 0123abc "$work/cases/one"
+lookup "lookup: an internal preset" ok 0123abc "$work/cases/one"
 expect_extends "github>flakeyard/renovate-config//internal/action#0123abc"
 finish
 
-setup
+setup_lookup
 printf '"first failure", "second failure"\n' >"$work/cases/one/expect.jq"
 cp -r "$work/cases/one" "$work/cases/two"
 echo empty >"$work/cases/two/expect.jq"
-run "lookup: a failed expectation" fail lookup 0123abc "$work/cases/one" "$work/cases/two"
+lookup "lookup: a failed expectation" fail 0123abc "$work/cases/one" "$work/cases/two"
 expect message "cases/one: first failure; second failure"
 expect message "passed: $work/cases/two"
 finish
 
-setup
+setup_lookup
 rm -- "$work/cases/one/fixture/flake.nix"
-run "lookup: Renovate fails" fail lookup 0123abc "$work/cases/one"
+lookup "lookup: Renovate fails" fail 0123abc "$work/cases/one"
 expect message "the lookup could not run"
 finish
 
-setup
+setup_lookup
 echo 'error("broken")' >"$work/cases/one/expect.jq"
-run "lookup: a broken expectation" fail lookup 0123abc "$work/cases/one"
+lookup "lookup: a broken expectation" fail 0123abc "$work/cases/one"
 expect message "the lookup could not run"
 finish
 
-setup
-unset RENOVATE_GITHUB_COM_TOKEN
-run "lookup: no token" fail lookup 0123abc "$work/cases/one"
+setup_lookup
+run "lookup: no token" fail check/lookup.sh -- 0123abc "$work/cases/one"
 expect message "RENOVATE_GITHUB_COM_TOKEN is not set"
 finish
 
-summary
+conclude

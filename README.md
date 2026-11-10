@@ -153,7 +153,9 @@ without its own `renovate.json`. The checks reject any other key.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`, formatting
-  (`nix fmt`), and the scripts with their unit tests (`tests/unit/`).
+  (`nix fmt`), and the scripts with their unit tests (`tests/unit/`). The unit
+  tests use the harness of `internal/testing` of
+  [action-shell-lib][action-shell-lib] at the commit that `test.yaml` pins.
 - `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
   Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
   with the preset named in `preset`, read from the commit `REF` of this
@@ -218,6 +220,7 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md
 [workflow-check-adr-0001]:
   https://github.com/flakeyard/workflow-check/blob/main/docs/adr/records/0001-check-pull-requests-and-pushes.md
+[action-shell-lib]: https://github.com/flakeyard/action-shell-lib
 [workflow-check]: https://github.com/flakeyard/workflow-check
 [workflow-scorecard]: https://github.com/flakeyard/workflow-scorecard
 [scorecard-badge]:
