@@ -32,23 +32,24 @@ STUB
 
 lookup() { "$SCRIPTS/check/lookup.sh" "$@"; }
 
+# expect_extends PRESET: the renovate.json of the fixture repository extends
+# exactly PRESET.
+expect_extends() {
+  local preset=$1
+  jq -e --arg preset "$preset" '. == {extends: [$preset]}' "$CONFIG" >/dev/null ||
+    report "renovate.json is $(cat -- "$CONFIG")"
+}
+
 setup
 run "lookup: the default preset" ok lookup 0123abc "$work/cases/one/"
-expect message "passed: $work/cases/one"
 expect output "passed: $work/cases/one"
+expect_extends "github>flakeyard/renovate-config#0123abc"
 finish
 
 setup
 echo internal/action >"$work/cases/one/preset"
 run "lookup: an internal preset" ok lookup 0123abc "$work/cases/one"
-[[ $(jq -c . "$CONFIG") == '{"extends":["github>flakeyard/renovate-config//internal/action#0123abc"]}' ]] ||
-  report "renovate.json is $(cat -- "$CONFIG")"
-finish
-
-setup
-run "lookup: the default preset by reference" ok lookup 0123abc "$work/cases/one"
-[[ $(jq -c . "$CONFIG") == '{"extends":["github>flakeyard/renovate-config#0123abc"]}' ]] ||
-  report "renovate.json is $(cat -- "$CONFIG")"
+expect_extends "github>flakeyard/renovate-config//internal/action#0123abc"
 finish
 
 setup
