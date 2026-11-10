@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/flakeyard/renovate-config/compare/v0.1.1...v0.2.0) (2026-11-10)
+
+
+### Features
+
+* propose updates of action-shell-lib as fix ([#35](https://github.com/flakeyard/renovate-config/issues/35)) ([72bf78a](https://github.com/flakeyard/renovate-config/commit/72bf78ad3964763b525f0f7f72302f13729792e0))
+
+
+### Bug Fixes
+
+* ignore test fixtures under directories named fixtures ([#30](https://github.com/flakeyard/renovate-config/issues/30)) ([4d6e002](https://github.com/flakeyard/renovate-config/commit/4d6e002a6fd620a5a61e1bc53de05aba9f295449))
+* open update pull requests without an hourly limit ([#23](https://github.com/flakeyard/renovate-config/issues/23)) ([d2b5f36](https://github.com/flakeyard/renovate-config/commit/d2b5f36db5ff95836d34327c7a681e42cf6be452))
+
 ## [0.1.1](https://github.com/flakeyard/renovate-config/compare/v0.1.0...v0.1.1) (2026-11-04)
 
 
