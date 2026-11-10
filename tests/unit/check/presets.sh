@@ -18,11 +18,16 @@ setup_presets() {
 }
 
 # Paths and changes for the filters of the cases, which cannot contain "|":
-# the package rule that disables update types of flake inputs and its list.
+# the package rule that disables update types of flake inputs and its list,
+# and the package rule of the shell library, found by its description.
 helpers='
   def nix_disabling: .packageRules[] | select(.matchManagers == ["nix"] and .enabled == false);
   def nix_disabled_types: nix_disabling | .matchUpdateTypes;
   def nix_disabling_everything: nix_disabling |= del(.matchUpdateTypes);
+  def is_shell_library: .description | test("shell library");
+  def shell_library: .packageRules[] | select(is_shell_library);
+  def shell_library_removed: .packageRules |= map(select(is_shell_library | not));
+  def shell_library_first: .packageRules |= ([.[] | select(is_shell_library)] + [.[] | select(is_shell_library | not)]);
 '
 
 # change FILE FILTER: rewrites FILE of the copy with the jq FILTER.
@@ -75,6 +80,11 @@ default, a flake input pinned|default.json|nix_disabled_types -= ["pin"]|update 
 default, new commits disabled|default.json|nix_disabled_types += ["digest"]|update type digest of flake inputs must not be disabled
 default, flake inputs disabled|default.json|nix_disabling_everything|a rule disables flake inputs instead
 default, an invalid option|default.json|.minimumReleaseAge = 3|Configuration Error
+default, the shell library not fix|default.json|shell_library_removed|no package rule gives fix to every update of flakeyard/action-shell-lib
+default, the shell library as a chore|default.json|shell_library.semanticCommitType = "chore"|no package rule gives fix to every update of flakeyard/action-shell-lib
+default, the shell library only as an action|default.json|shell_library.matchManagers = ["github-actions"]|no package rule gives fix to every update of flakeyard/action-shell-lib
+default, the shell library as a flake input left out|default.json|shell_library.matchPackageNames = ["flakeyard/action-shell-lib"]|no package rule gives fix to every update of flakeyard/action-shell-lib
+default, the shell library before ci|default.json|shell_library_first|the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type
 internal, no default|internal/action.json|del(.extends)|must extend exactly ["/default"]
 internal, a built-in preset|internal/image.json|.extends += ["config:recommended"]|must extend exactly ["/default"]
 internal, the default by tag|internal/atom.json|.extends = ["github>flakeyard/renovate-config#v0.1.0"]|must extend exactly ["/default"]
