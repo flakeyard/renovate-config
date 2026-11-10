@@ -1,12 +1,5 @@
 # Changelog
 
-## [0.1.2](https://github.com/flakeyard/renovate-config/compare/v0.1.1...v0.1.2) (2026-11-05)
-
-
-### Bug Fixes
-
-* open update pull requests without an hourly limit ([#23](https://github.com/flakeyard/renovate-config/issues/23)) ([d2b5f36](https://github.com/flakeyard/renovate-config/commit/d2b5f36db5ff95836d34327c7a681e42cf6be452))
-
 ## [0.1.1](https://github.com/flakeyard/renovate-config/compare/v0.1.0...v0.1.1) (2026-11-04)
 
 
