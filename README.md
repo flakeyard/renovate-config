@@ -105,7 +105,7 @@ names its decision in its `description`.
   input, with a link that compares the commits and, for flakeyard inputs, a link
   to the releases. Every other update type is disabled by name, including those
   of Renovate versions newer than the one of `flake.lock`; lock file maintenance
-  is off ([FY-0016][fy-0016], [FY-0026][fy-0026]). Pull requests of third-party
+  is off ([FY-0016][fy-0016], [FY-0036][fy-0036]). Pull requests of third-party
   inputs are not updated outside their schedule (`updateNotScheduled: false`):
   nixpkgs gets new commits several times a day, and each would replace the
   commit under review and run the checks again. Such a pull request that falls
@@ -195,8 +195,6 @@ are released:
 [decisions]: https://github.com/flakeyard/decisions
 [fy-0016]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0016-pin-form.md
-[fy-0026]:
-  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0026-stable-nixpkgs.md
 [fy-0029]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0029-renovate-mend.md
 [fy-0022]:

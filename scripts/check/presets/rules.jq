@@ -19,7 +19,7 @@ def required_settings: [
   {path: ["copier", "enabled"], value: false, reason: "the Mend app runs no Copier tasks (FY-0029)"}
 ];
 
-# The only update type of flake inputs (FY-0016, FY-0026).
+# The only update type of flake inputs (FY-0016, FY-0036).
 def flake_input_update_type: "digest";
 
 # The directories of test fixtures, which pin old versions on purpose: fixture
