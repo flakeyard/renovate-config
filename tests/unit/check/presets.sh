@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Unit tests of scripts/check/presets.sh: each case breaks one rule in a copy
-# of the presets. Inputs (environment): SHELL_LIB, the shell library; SCRIPTS,
-# the scripts directory; PRESETS, the JSON files of the repository;
-# RENOVATE_SCHEMA, the JSON schema of the Renovate that runs.
+# Unit tests of scripts/check/presets.sh and of its rules,
+# scripts/check/presets/rules.jq: each case breaks one rule in a copy of the
+# presets. The cases of the rules apply them with jq alone, because a run of
+# Renovate's validator takes most of the time of a run of the check. Inputs
+# (environment): SHELL_LIB, the shell library; SCRIPTS, the scripts directory;
+# PRESETS, the JSON files of the repository; RENOVATE_SCHEMA, the JSON schema
+# of the Renovate that runs.
 # shellcheck disable=SC2154 # work comes from setup of the harness.
 set -uo pipefail
 export LC_ALL=C
@@ -45,26 +48,45 @@ check() {
   run "$name" "$expected" check/presets.sh RENOVATE_SCHEMA="$RENOVATE_SCHEMA" -- "$work/repo"
 }
 
+# apply_rules KIND FILE: the problems that rules.jq finds in FILE of the copy,
+# a file of KIND, by the interface that rules.jq documents. FILE is relative
+# to the copy, as the check gives it, because the rules read its name.
+apply_rules() {
+  local kind=$1 file=$2
+  (cd -- "$work/repo" && jq -r -L "$SCRIPTS/check/presets" --arg kind "$kind" \
+    --slurpfile schema "$RENOVATE_SCHEMA" 'include "rules"; problems($kind)' "$file")
+}
+
+# rules NAME EXPECTED KIND FILE: apply the rules to FILE of the copy, a file of
+# KIND; EXPECTED is ok when they find no problem, fail when they find one.
+rules() {
+  local name=$1 expected=$2 kind=$3 file=$4 status=0
+  apply_rules "$kind" "$file" >"$work/stdout" 2>"$work/stderr" || status=$?
+  # The check fails on any problem, as on a failure of jq.
+  if ((status == 0)) && [[ -s $work/stdout ]]; then status=1; fi
+  outcome "$name" "$expected" "$status"
+}
+
 setup_presets
 check "presets: the repository" ok
 finish
 
 setup_presets
 change renovate.json '.extends = ["github>flakeyard/renovate-config//internal/workflow#v1.2.3"]'
-check "presets: an internal preset in renovate.json" ok
+rules "rules: repository, an internal preset in renovate.json" ok repository renovate.json
 finish
 
+# The kind of the file of a case is the first word of its name.
 while IFS='|' read -r name file filter message; do
   setup_presets
   change "$file" "$filter"
-  check "presets: $name" fail
+  rules "rules: $name" fail "${name%%,*}" "$file"
   expect message "$message"
   finish
 done <<'CASES'
 inherited, a rule|org-inherited-config.json|.extends = [":semanticCommits"]|extends is not an onboarding key
 inherited, onboarding|org-inherited-config.json|.onboarding = true|onboarding must be false
 inherited, no requireConfig|org-inherited-config.json|del(.requireConfig)|requireConfig must be "required"
-inherited, an invalid value|org-inherited-config.json|.requireConfig = "sometimes"|Invalid value `sometimes` for `requireConfig`
 default, a built-in preset|default.json|.extends = ["config:recommended"]|must not extend presets
 default, enabledManagers|default.json|.enabledManagers = ["nix"]|enabledManagers turns off
 default, a rule without its decision|default.json|.packageRules[0].description = "weekly"|packageRules[0] has no description
@@ -82,7 +104,6 @@ default, node modules updated|default.json|.ignorePaths = ["**/fixture/**"]|igno
 default, a flake input pinned|default.json|nix_disabled_types -= ["pin"]|update type pin of flake inputs is not disabled
 default, new commits disabled|default.json|nix_disabled_types += ["digest"]|update type digest of flake inputs must not be disabled
 default, flake inputs disabled|default.json|nix_disabling_everything|a rule disables flake inputs instead
-default, an invalid option|default.json|.minimumReleaseAge = 3|Configuration Error
 default, the shell library fix|default.json|shell_library_added|only the presets of actions and workflows give fix to flakeyard/action-shell-lib
 internal, the shell library not fix in an action|internal/action.json|shell_library_removed|no package rule gives fix to every update of flakeyard/action-shell-lib
 internal, the shell library not fix in a workflow|internal/workflow.json|shell_library_removed|no package rule gives fix to every update of flakeyard/action-shell-lib
@@ -107,6 +128,19 @@ repository, a branch|renovate.json|.extends = ["github>flakeyard/renovate-config
 repository, a relative reference|renovate.json|.extends = ["/default"]|/default is not a preset of this repository
 repository, a built-in preset|renovate.json|.extends += [":semanticCommits"]|:semanticCommits is not a preset of this repository
 repository, another repository|renovate.json|.extends = ["github>flakeyard-evil/renovate-config#v1.0.0"]|is not a preset of this repository
+CASES
+
+# Problems that only Renovate's validator finds, which names the file of each.
+while IFS='|' read -r name file filter message; do
+  setup_presets
+  change "$file" "$filter"
+  check "presets: $name" fail
+  expect message "$message"
+  expect message "\"file\": \"$file\""
+  finish
+done <<'CASES'
+inherited, an invalid value|org-inherited-config.json|.requireConfig = "sometimes"|Invalid value `sometimes` for `requireConfig`
+default, an invalid option|default.json|.minimumReleaseAge = 3|Configuration Error
 internal, an invalid option|internal/action.json|.packageRules[0].semanticCommitType = 1|Configuration Error
 CASES
 
