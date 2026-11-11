@@ -162,18 +162,16 @@ without its own `renovate.json`. The checks reject any other key.
   repository on GitHub, and `expect.jq` checks its report. `REF` must be pushed.
   The tests need the network and a token that can read public repositories in
   `RENOVATE_GITHUB_COM_TOKEN`, such as the one of `gh auth token`.
-- `nix run .#check-eol -- nixpkgs-eol` warns before the nixpkgs branch reaches
-  its end of life ([FY-0026][fy-0026]).
 
 CI, `test.yaml`, runs the lookup tests with the commit under test, also weekly,
 and then calls [workflow-check][workflow-check], which builds the checks of the
 flake on both architectures and checks pull request titles, `renovate.json` and
 the immutable release behind its preset tag ([workflow-check
-ADR-0001][workflow-check-adr-0001]). The weekly workflow `maintenance.yaml`,
-which is not a required check, runs `check-eol`. `scorecard.yaml` runs OpenSSF
-Scorecard through [workflow-scorecard][workflow-scorecard]. Releases are made by
-release-please through `flakeyard/workflow-release`; `0.y.z` releases are
-pre-releases.
+ADR-0001][workflow-check-adr-0001]). Its weekly run also checks the end of life
+of the nixpkgs branch in `flake.lock` ([FY-0036][fy-0036]). `scorecard.yaml`
+runs OpenSSF Scorecard through [workflow-scorecard][workflow-scorecard].
+Releases are made by release-please through `flakeyard/workflow-release`;
+`0.y.z` releases are pre-releases.
 
 This repository extends its own default preset by the tag of its latest release,
 so every release comes back as a Renovate pull request here first. Read the job
@@ -215,6 +213,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0030-actions-workflows-and-release-bot.md
 [fy-0035]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0035-extract-logic-that-has-two-users.md
+[fy-0036]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0036-check-the-end-of-life-of-nixpkgs-in-flake-lock.md
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
 [fy-0003]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md
