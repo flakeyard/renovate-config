@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.2](https://github.com/flakeyard/renovate-config/compare/v0.2.1...v0.2.2) (2026-11-11)
+
+
+### Bug Fixes
+
+* **deps:** update flakeyard/action-shell-lib action to v0.1.4 ([#57](https://github.com/flakeyard/renovate-config/issues/57)) ([b3e17e2](https://github.com/flakeyard/renovate-config/commit/b3e17e265cd11a07d3a84184912c5bb39d1bfc64))
+
+
+### Performance Improvements
+
+* run the validator once per mode and test the rules with jq alone ([#54](https://github.com/flakeyard/renovate-config/issues/54)) ([ccac3cc](https://github.com/flakeyard/renovate-config/commit/ccac3cc1c6270377231d2dcc46ff83f0b8c61710))
+
 ## [0.2.1](https://github.com/flakeyard/renovate-config/compare/v0.2.0...v0.2.1) (2026-11-11)
 
 
