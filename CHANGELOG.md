@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/flakeyard/renovate-config/compare/v0.2.0...v0.2.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* propose updates of action-shell-lib as fix only in actions and workflows ([#51](https://github.com/flakeyard/renovate-config/issues/51)) ([ba5337c](https://github.com/flakeyard/renovate-config/commit/ba5337c1e09adea4d5f5aaac58eaccf2d61a6841))
+
 ## [0.2.0](https://github.com/flakeyard/renovate-config/compare/v0.1.1...v0.2.0) (2026-11-10)
 
 
