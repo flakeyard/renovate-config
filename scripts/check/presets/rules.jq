@@ -1,7 +1,8 @@
 # Rules for the presets and configuration files that Renovate's validator
 # cannot express. problems(KIND) gives one message per broken rule of its
-# input, a file of KIND that the validator accepted. $schema holds the JSON
-# schema of the Renovate that runs the check, as --slurpfile gives it.
+# input, a file of KIND, which the check also gives to the validator. $schema
+# holds the JSON schema of the Renovate that runs the check, as --slurpfile
+# gives it.
 
 # The only keys org-inherited-config.json may hold, with the values of the
 # organization settings in the Mend Developer Portal (FY-0029).

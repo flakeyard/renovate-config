@@ -21,7 +21,9 @@ validate_global() {
 }
 
 # validate_repository FILE...: Renovate's validator on each FILE as the
-# configuration of a repository, which presets are.
+# configuration of a repository, which presets are. One run checks every FILE
+# and names the file of each problem; a run of the validator takes most of the
+# time of the check.
 validate_repository() {
   renovate-config-validator --strict --no-global "$@"
 }
@@ -50,42 +52,45 @@ check_rules() {
   return 1
 }
 
-# check_inherited_config: the file the Mend app reads from main (FY-0029).
-check_inherited_config() {
-  validate_global "$inherited_config" && check_rules inherited "$inherited_config"
+# check_internal_presets_exist: the presets of flakeyard repositories, one per
+# kind, are in internal/.
+check_internal_presets_exist() {
+  ((${#internal_presets[@]} > 0)) && return 0
+  echo "::error::There are no presets in internal/."
+  return 1
 }
 
-# check_default_preset: the rules for every repository and generated project.
-check_default_preset() {
-  validate_repository "$default_preset" && check_rules default "$default_preset"
-}
-
-# check_internal_presets: the presets of flakeyard repositories, one per kind.
-check_internal_presets() {
-  local presets=(internal/*.json) preset failed=0
-  if ((${#presets[@]} == 0)); then
-    echo "::error::There are no presets in internal/."
-    return 1
-  fi
-  validate_repository "${presets[@]}" || failed=1
-  for preset in "${presets[@]}"; do
-    check_rules internal "$preset" || failed=1
-  done
+# validate_files: Renovate's validator on every file. The file the Mend app
+# reads from main is global configuration (FY-0029).
+validate_files() {
+  local failed=0
+  validate_global "$inherited_config" || failed=1
+  validate_repository "$default_preset" "${internal_presets[@]}" "$repository_config" || failed=1
   return "$failed"
 }
 
-# check_repository_config: the configuration of this repository, which
-# extends a released preset like any other repository.
-check_repository_config() {
-  validate_repository "$repository_config" && check_rules repository "$repository_config"
+# check_all_rules: the rules of every file, also of those that the validator
+# rejects, so that one run reports every problem: the file the Mend app reads
+# from main (FY-0029), the rules for every repository and generated project,
+# the presets of flakeyard repositories and the configuration of this
+# repository, which extends a released preset like any other repository.
+check_all_rules() {
+  local preset failed=0
+  check_rules inherited "$inherited_config" || failed=1
+  check_rules default "$default_preset" || failed=1
+  for preset in "${internal_presets[@]}"; do
+    check_rules internal "$preset" || failed=1
+  done
+  check_rules repository "$repository_config" || failed=1
+  return "$failed"
 }
 
 cd -- "$repository"
+internal_presets=(internal/*.json)
 failed=0
-check_inherited_config || failed=1
-check_default_preset || failed=1
-check_internal_presets || failed=1
-check_repository_config || failed=1
+check_internal_presets_exist || failed=1
+validate_files || failed=1
+check_all_rules || failed=1
 if ((failed)); then
   echo "::error::The presets or configuration files have problems."
   exit 1
