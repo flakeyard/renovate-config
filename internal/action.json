@@ -7,6 +7,14 @@
       "description": "What consumers run: the action and the tools of its flake (FY-0007, FY-0030)",
       "matchFileNames": ["action.yml", "flake.nix"],
       "semanticCommitType": "fix"
+    },
+    {
+      "description": "Updates of the shared shell library are fix, so that they are released: the action runs it for its users; the rule follows the other commit types of the presets to win over them (FY-0035)",
+      "matchPackageNames": [
+        "flakeyard/action-shell-lib",
+        "https://github.com/flakeyard/action-shell-lib"
+      ],
+      "semanticCommitType": "fix"
     }
   ]
 }
