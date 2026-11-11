@@ -49,7 +49,7 @@
       "pinDigests": true
     },
     {
-      "description": "Runner images are changed deliberately, like the nixpkgs branch (action-setup-nix ADR-0001, FY-0026)",
+      "description": "Runner images are changed deliberately, like the nixpkgs branch (action-setup-nix ADR-0001, FY-0036)",
       "matchDatasources": ["github-runners"],
       "enabled": false
     },
@@ -64,7 +64,7 @@
       ]
     },
     {
-      "description": "Flake inputs: every update type except a new commit of the locked ref is disabled, listed in full because a rule without matchUpdateTypes would disable the dependency itself (FY-0016, FY-0026)",
+      "description": "Flake inputs: every update type except a new commit of the locked ref is disabled, listed in full because a rule without matchUpdateTypes would disable the dependency itself (FY-0016, FY-0036)",
       "matchManagers": ["nix"],
       "matchUpdateTypes": [
         "major",
