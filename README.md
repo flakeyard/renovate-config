@@ -41,6 +41,13 @@ The flake of a workflow repository only checks and tests it, so
 `scripts/check/presets/rules.jq` holds the same table and fails when a preset
 differs from it.
 
+Actions and workflows run `flakeyard/action-shell-lib` for their users, so
+`internal/action` and `internal/workflow` make its updates `fix(deps)` wherever
+it is pinned; the rule follows the other commit types, because a later rule
+wins. Other repositories use the library only in their CI, where its updates are
+`ci(deps)` ([FY-0035][fy-0035]). A workflow that uses it only in its tests makes
+them `ci(deps)` in its `renovate.json`.
+
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
@@ -85,12 +92,9 @@ names its decision in its `description`.
   fall behind. The Dependency Dashboard lists pending updates.
 - **Commits and labels.** Commit messages are `chore(deps): ...`, or
   `ci(deps): ...` for files under `.github/workflows/` and `.github/actions/`
-  ([FY-0007][fy-0007]). Updates of `flakeyard/action-shell-lib` are
-  `fix(deps): ...` wherever they are pinned, so that every consumer releases
-  them ([FY-0035][fy-0035]); the rule follows the other commit types of the
-  preset, because a later rule wins. Pull requests get the label `dependencies`,
-  majors and minor updates below `1.0.0` also `breaking`, fixes of security
-  alerts `security`.
+  ([FY-0007][fy-0007]). Pull requests get the label `dependencies`, majors and
+  minor updates below `1.0.0` also `breaking`, fixes of security alerts
+  `security`.
 - **Schedule and age.** Third-party updates are proposed on Mondays (UTC), 3
   days after their release. Updates of flakeyard's own actions, workflows, flake
   inputs, presets and images are proposed at any time and at once, `0.y.z`

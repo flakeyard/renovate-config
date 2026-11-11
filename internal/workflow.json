@@ -12,6 +12,14 @@
       "description": "The flake only checks and tests the repository; consumers do not receive it (FY-0007)",
       "matchFileNames": ["flake.nix"],
       "semanticCommitType": "ci"
+    },
+    {
+      "description": "Updates of the shared shell library are fix, so that they are released: the workflow runs it for its callers; the rule follows the other commit types of the presets to win over them (FY-0035)",
+      "matchPackageNames": [
+        "flakeyard/action-shell-lib",
+        "https://github.com/flakeyard/action-shell-lib"
+      ],
+      "semanticCommitType": "fix"
     }
   ]
 }

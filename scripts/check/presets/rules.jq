@@ -98,13 +98,30 @@ def gives_shell_library_fix:
 def typed_rule_indexes(selection):
   [.packageRules // [] | to_entries[] | select(.value | has("semanticCommitType") and selection) | .key];
 
-# shell_library_problems: updates of the shell library are fix, by a rule
+# The presets of repositories that ship the shell library to their users:
+# actions run it in action.yml, workflows in the workflow their callers use.
+# The other presets leave its updates the type of the files they change, ci
+# in CI (FY-0035, FY-0007).
+def shell_library_fix_presets: ["internal/action.json", "internal/workflow.json"];
+
+# ships_shell_library: whether the input preset is one of
+# shell_library_fix_presets.
+def ships_shell_library: shell_library_fix_presets | any(. == input_filename);
+
+# shell_library_fix_problems: updates of the shell library are fix, by a rule
 # after every other commit type of the preset, because a later rule wins.
-def shell_library_problems:
+def shell_library_fix_problems:
   typed_rule_indexes(gives_shell_library_fix) as $fixes
   | if $fixes == [] then "no package rule gives fix to every update of flakeyard/action-shell-lib (FY-0035)"
     elif $fixes[-1] != typed_rule_indexes(true)[-1] then "the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type (FY-0035)"
     else empty end;
+
+# shell_library_problems: only the presets of shell_library_fix_presets give
+# fix to the shell library.
+def shell_library_problems:
+  if ships_shell_library then shell_library_fix_problems
+  elif typed_rule_indexes(gives_shell_library_fix) != [] then "only the presets of actions and workflows give fix to flakeyard/action-shell-lib (FY-0035)"
+  else empty end;
 
 def default_problems:
   preset_problems,
@@ -148,7 +165,8 @@ def commit_type_problems:
 def internal_problems:
   preset_problems,
   (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end),
-  commit_type_problems;
+  commit_type_problems,
+  shell_library_problems;
 
 # How a repository extends a preset: by the exact tag of a release, never by
 # the moving tag vX, a branch or a reference relative to the repository
