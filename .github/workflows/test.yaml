@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 5
     permissions: {}
     steps:
-      - uses: flakeyard/action-shell-lib@ef6978e8074ba1891610e4fcfd9a84a6da8d5c7f # v0.1.4
+      - uses: flakeyard/action-shell-lib@2baa3947a1957691e89b5b86bee8c66e76b4ac00 # v0.2.0
 
   check:
     needs: [lookup, shell-lib]
