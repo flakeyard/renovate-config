@@ -1,0 +1,5 @@
+// The flakeyard repositories pin an exact release by the digest of its
+// manifest list; this is that of v0.1.9.
+{
+  "image": "ghcr.io/flakeyard/image-devcontainer:v0.1.9@sha256:0f4912945ec2df24b24bc611c59a9bedd9bbb9e8dc414a530b6e8fbda491c325"
+}
