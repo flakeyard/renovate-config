@@ -155,6 +155,13 @@ without its own `renovate.json`. The checks reject any other key.
 
 ## Development
 
+Open the repository in its dev container,
+[`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json), with
+"Reopen in Container" in VS Code or `devcontainer up --workspace-folder .`. It
+has Nix, and the commands below run in it as in CI; tools that the image does
+not have come from nixpkgs, such as `nix run nixpkgs#actionlint`. Nix on the
+host works as well.
+
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`, formatting
   (`nix fmt`), and the scripts with their unit tests (`tests/unit/`). The unit
