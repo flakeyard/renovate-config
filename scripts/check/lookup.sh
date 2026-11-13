@@ -34,13 +34,13 @@ preset_reference() {
 # CASE/fixture and a renovate.json that extends the preset of CASE.
 fixture_repository() {
   local case=$1 dir=$2 preset reference
-  preset=$(<"$case/preset") &&
-    reference=$(preset_reference "$preset") &&
-    cp -r -- "$case/fixture/." "$dir" &&
-    jq -n --arg preset "$reference" '{extends: [$preset]}' >"$dir/renovate.json" &&
-    git -C "$dir" init -q &&
-    git -C "$dir" add -A &&
-    git -C "$dir" -c user.name=lookup -c user.email=lookup@localhost commit -q -m fixture
+  preset=$(<"$case/preset") \
+    && reference=$(preset_reference "$preset") \
+    && cp -r -- "$case/fixture/." "$dir" \
+    && jq -n --arg preset "$reference" '{extends: [$preset]}' >"$dir/renovate.json" \
+    && git -C "$dir" init -q \
+    && git -C "$dir" add -A \
+    && git -C "$dir" -c user.name=lookup -c user.email=lookup@localhost commit -q -m fixture
 }
 
 # look_up DIR REPORT: Renovate's lookup of the repository DIR, its report in
@@ -60,10 +60,10 @@ failed_expectations() {
 # look_up_case CASE: the report of Renovate for CASE, in $work/report.json.
 look_up_case() {
   local case=$1
-  rm -rf -- "${work:?}"/* &&
-    mkdir -- "$work/repository" &&
-    fixture_repository "$case" "$work/repository" &&
-    look_up "$work/repository" "$work/report.json"
+  rm -rf -- "${work:?}"/* \
+    && mkdir -- "$work/repository" \
+    && fixture_repository "$case" "$work/repository" \
+    && look_up "$work/repository" "$work/report.json"
 }
 
 # run_case CASE: runs the test CASE; fails when an expectation fails.
