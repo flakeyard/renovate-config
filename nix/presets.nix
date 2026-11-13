@@ -2,11 +2,11 @@
 # files that the checks read.
 {
   perSystem =
-    { lib, ... }:
+    { lib, root, ... }:
     {
       _module.args.presets = lib.fileset.toSource {
-        root = ../.;
-        fileset = lib.fileset.fileFilter (file: file.hasExt "json") ../.;
+        inherit root;
+        fileset = lib.fileset.fileFilter (file: file.hasExt "json") root;
       };
     };
 }

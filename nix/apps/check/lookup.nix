@@ -2,13 +2,18 @@
 # need the network, so CI runs them as an app, not as a check.
 {
   perSystem =
-    { mkApp, pkgs, ... }:
+    {
+      mkApp,
+      pkgs,
+      root,
+      ...
+    }:
     {
       apps.check-lookup =
         mkApp
           {
             name = "check-lookup";
-            script = ../../../scripts/check/lookup.sh;
+            script = root + "/scripts/check/lookup.sh";
           }
           {
             description = "Check which updates Renovate proposes with the presets";
