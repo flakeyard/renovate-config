@@ -7,11 +7,12 @@
       pkgs,
       presets,
       renovateSchema,
+      root,
       ...
     }:
     let
       pin = builtins.match ".*uses: flakeyard/action-shell-lib@([0-9a-f]{40}) .*" (
-        builtins.readFile ../../.github/workflows/test.yaml
+        builtins.readFile (root + "/.github/workflows/test.yaml")
       );
       shellLib =
         if pin == null then
@@ -36,8 +37,8 @@
               renovate
               shellcheck
             ];
-            scripts = ../../scripts;
-            unit = ../../tests/unit;
+            scripts = root + "/scripts";
+            unit = root + "/tests/unit";
             inherit presets shellLib;
             RENOVATE_SCHEMA = renovateSchema;
           }

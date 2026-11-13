@@ -6,6 +6,7 @@
       pkgs,
       presets,
       renovateSchema,
+      root,
       ...
     }:
     {
@@ -18,7 +19,7 @@
               jq
               renovate
             ];
-            scripts = ../../scripts;
+            scripts = root + "/scripts";
             inherit presets;
             RENOVATE_SCHEMA = renovateSchema;
           }
