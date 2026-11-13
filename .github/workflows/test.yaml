@@ -37,7 +37,7 @@ jobs:
         with:
           ref: ${{ env.REF }}
           persist-credentials: false
-      - uses: flakeyard/action-setup-nix@6718901a8eee1c62fd9ebddb8c8a11082c4e6495 # v0.1.5
+      - uses: flakeyard/action-setup-nix@a221f6da7d616d4d548659d91f24f5e8f8f77fda # v0.1.6
       - name: Look up updates with the presets of the commit
         shell: bash
         env:
