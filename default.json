@@ -103,6 +103,12 @@
       "prBodyNotes": ["Releases: {{{packageName}}}/releases"]
     },
     {
+      "description": "Atoms are development tools: updates of their flake inputs are ci and release nothing (FY-0038)",
+      "matchManagers": ["nix"],
+      "matchPackageNames": ["https://github.com/flakeyard/atom-*"],
+      "semanticCommitType": "ci"
+    },
+    {
       "description": "Majors break compatibility (FY-0024)",
       "matchUpdateTypes": ["major"],
       "addLabels": ["breaking"]

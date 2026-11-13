@@ -23,7 +23,8 @@ setup_presets() {
 # Paths and changes for the filters of the cases, which cannot contain "|":
 # the package rule that disables update types of flake inputs and its list,
 # the package rule of the shell library, found by its description, and a copy
-# of it that the test restates as an independent oracle.
+# of it that the test restates as an independent oracle; the package rule of
+# the atoms, found by its description.
 helpers='
   def nix_disabling: .packageRules[] | select(.matchManagers == ["nix"] and .enabled == false);
   def nix_disabled_types: nix_disabling | .matchUpdateTypes;
@@ -34,6 +35,8 @@ helpers='
   def shell_library_first: .packageRules |= ([.[] | select(is_shell_library)] + [.[] | select(is_shell_library | not)]);
   def shell_library_fix: {description: "shell library (FY-0035)", matchPackageNames: ["flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"], semanticCommitType: "fix"};
   def shell_library_added: .packageRules += [shell_library_fix];
+  def atoms: .packageRules[] | select(.description | test("^Atoms are development tools"));
+  def atoms_removed: .packageRules -= [atoms];
 '
 
 # change FILE FILTER: rewrites FILE of the copy with the jq FILTER.
@@ -104,6 +107,9 @@ default, node modules updated|default.json|.ignorePaths = ["**/fixture/**"]|igno
 default, a flake input pinned|default.json|nix_disabled_types -= ["pin"]|update type pin of flake inputs is not disabled
 default, new commits disabled|default.json|nix_disabled_types += ["digest"]|update type digest of flake inputs must not be disabled
 default, flake inputs disabled|default.json|nix_disabling_everything|a rule disables flake inputs instead
+default, atoms not ci|default.json|atoms_removed|no package rule gives ci to every update of an atom input
+default, atoms as a chore|default.json|atoms.semanticCommitType = "chore"|no package rule gives ci to every update of an atom input
+default, atoms only in flake.nix|default.json|atoms.matchFileNames = ["flake.nix"]|no package rule gives ci to every update of an atom input
 default, the shell library fix|default.json|shell_library_added|only the presets of actions and workflows give fix to flakeyard/action-shell-lib
 internal, the shell library not fix in an action|internal/action.json|shell_library_removed|no package rule gives fix to every update of flakeyard/action-shell-lib
 internal, the shell library not fix in a workflow|internal/workflow.json|shell_library_removed|no package rule gives fix to every update of flakeyard/action-shell-lib
@@ -113,6 +119,9 @@ internal, the shell library as a flake input left out|internal/workflow.json|she
 internal, the shell library before fix|internal/action.json|shell_library_first|the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type
 internal, the shell library before ci|internal/workflow.json|shell_library_first|the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type
 internal, the shell library fix in an image|internal/image.json|shell_library_added|only the presets of actions and workflows give fix to flakeyard/action-shell-lib
+internal, atoms released by an action|internal/action.json|del(.packageRules[0].matchPackageNames)|packageRules[0] gives fix to the atoms in flake.nix
+internal, atoms released by an image|internal/image.json|.packageRules[0].matchPackageNames = ["*"]|packageRules[0] gives fix to the atoms in flake.nix
+internal, atoms released by a workflow|internal/workflow.json|.packageRules[1].semanticCommitType = "fix"|packageRules[1] gives fix to the atoms in flake.nix
 internal, no default|internal/action.json|del(.extends)|must extend exactly ["/default"]
 internal, a built-in preset|internal/image.json|.extends += ["config:recommended"]|must extend exactly ["/default"]
 internal, the default by tag|internal/atom.json|.extends = ["github>flakeyard/renovate-config#v0.1.0"]|must extend exactly ["/default"]

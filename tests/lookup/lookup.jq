@@ -30,3 +30,15 @@ def some_update(condition): .updates // [] | any(condition);
 # every_update(CONDITION): whether the input dependency has updates and all
 # of them hold CONDITION.
 def every_update(condition): .updates // [] | length > 0 and all(condition);
+
+# commit_type(NAME): the commit type in the pull request title of the branch
+# that updates the dependency NAME, or null. $branches holds the branches of
+# the lookup, as check-lookup gives them.
+def commit_type($name):
+  first($branches[] | select(any(.upgrades[]; .depName == $name)) | .prTitle | capture("^(?<type>[a-z]+)[(:]").type) // null;
+
+# expect_commit_type(NAME; TYPE): a message unless the pull request of the
+# dependency NAME has the commit type TYPE.
+def expect_commit_type($name; $type):
+  commit_type($name) as $actual
+  | expect($actual == $type; "\($name) is proposed as \($actual // "nothing") instead of \($type)");

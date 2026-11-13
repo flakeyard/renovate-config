@@ -19,6 +19,25 @@
         "url": "https://github.com/flakeyard/action-setup-nix"
       }
     },
+    "atom-workflows": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794581276,
+        "narHash": "sha256-smUhZc8g6pucmqG53Q+ht7wY7cguvOnB2kk1SXu21jA=",
+        "ref": "v0",
+        "rev": "648f7c488e6284f185c69bc22d9a8b5d971c3ce2",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/atom-workflows"
+      },
+      "original": {
+        "ref": "v0",
+        "rev": "648f7c488e6284f185c69bc22d9a8b5d971c3ce2",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/atom-workflows"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793183032,
@@ -40,6 +59,7 @@
     "root": {
       "inputs": {
         "action-setup-nix": "action-setup-nix",
+        "atom-workflows": "atom-workflows",
         "nixpkgs": "nixpkgs"
       }
     }
