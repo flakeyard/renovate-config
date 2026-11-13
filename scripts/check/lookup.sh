@@ -46,11 +46,17 @@ fixture_repository() {
 
 # look_up DIR REPORT LOG: Renovate's lookup of the repository DIR, its report
 # in the file REPORT and its log, as JSON lines down to the level trace, in the
-# file LOG.
+# file LOG. Renovate lowercases LOG_FILE (getEnv of lib/logger/utils.ts), so it
+# gets LOG relative to DIR, such as ../log.json; LOG must be at a path whose
+# part below the common parent with DIR is lowercase. The trace of templates
+# makes Renovate report, at the level info, every variable they could read, so
+# the output shows only warnings and errors.
 look_up() {
-  local dir=$1 report=$2 log=$3
-  (cd -- "$dir" && RENOVATE_BASE_DIR=$work/renovate LOG_FILE=$log LOG_FILE_LEVEL=trace \
-    renovate --platform=local --dry-run=lookup --report-type=file --report-path="$report")
+  local dir=$1 report=$2 log=$3 log_file
+  log_file=$(realpath -m --relative-to="$dir" -- "$log") \
+    && (cd -- "$dir" && RENOVATE_BASE_DIR=$work/renovate LOG_FILE=$log_file LOG_FILE_LEVEL=trace \
+      LOG_LEVEL=warn \
+      renovate --platform=local --dry-run=lookup --report-type=file --report-path="$report")
 }
 
 # branches LOG BRANCHES: the branches of the log LOG, one JSON object per
