@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/flakeyard/renovate-config/compare/v0.2.2...v0.2.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* propose updates of atoms as ci in every repository ([#77](https://github.com/flakeyard/renovate-config/issues/77)) ([a7c7394](https://github.com/flakeyard/renovate-config/commit/a7c73948c3d77a6886066dc2007a5747f8d1cbc7))
+
 ## [0.2.2](https://github.com/flakeyard/renovate-config/compare/v0.2.1...v0.2.2) (2026-11-11)
 
 
