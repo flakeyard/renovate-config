@@ -41,6 +41,13 @@ The flake of a workflow repository only checks and tests it, so
 `scripts/check/presets/rules.jq` holds the same table and fails when a preset
 differs from it.
 
+Atoms are development tools: updates of their flake inputs change nothing that
+consumers receive, so the default preset makes them `ci(deps)` in every
+repository, and the `fix(deps)` of `flake.nix` in `internal/action` and
+`internal/image` leaves them out ([FY-0038][fy-0038]). A repository whose root
+flake only imports atoms makes every update of its `flake.nix` `ci(deps)` in its
+`renovate.json`.
+
 Actions and workflows run `flakeyard/action-shell-lib` for their users, so
 `internal/action` and `internal/workflow` make its updates `fix(deps)` wherever
 it is pinned; the rule follows the other commit types, because a later rule
@@ -92,9 +99,9 @@ names its decision in its `description`.
   fall behind. The Dependency Dashboard lists pending updates.
 - **Commits and labels.** Commit messages are `chore(deps): ...`, or
   `ci(deps): ...` for files under `.github/workflows/` and `.github/actions/`
-  ([FY-0007][fy-0007]). Pull requests get the label `dependencies`, majors and
-  minor updates below `1.0.0` also `breaking`, fixes of security alerts
-  `security`.
+  ([FY-0007][fy-0007]), and for flake inputs of atoms ([FY-0038][fy-0038]). Pull
+  requests get the label `dependencies`, majors and minor updates below `1.0.0`
+  also `breaking`, fixes of security alerts `security`.
 - **Schedule and age.** Third-party updates are proposed on Mondays (UTC), 3
   days after their release. Updates of flakeyard's own actions, workflows, flake
   inputs, presets and images are proposed at any time and at once, `0.y.z`
@@ -172,8 +179,9 @@ works as well.
 - `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
   Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
   with the preset named in `preset`, read from the commit `REF` of this
-  repository on GitHub, and `expect.jq` checks its report. `REF` must be pushed.
-  The tests need the network and a token that can read public repositories in
+  repository on GitHub, and `expect.jq` checks its report and the pull request
+  titles of the branches it would open. `REF` must be pushed. The tests need the
+  network and a token that can read public repositories in
   `RENOVATE_GITHUB_COM_TOKEN`, such as the one of `gh auth token`.
 
 CI, `test.yaml`, runs the lookup tests with the commit under test, also weekly,
@@ -224,6 +232,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0030-actions-workflows-and-release-bot.md
 [fy-0035]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0035-extract-logic-that-has-two-users.md
+[fy-0038]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0038-roll-out-the-atoms.md
 [fy-0036]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0036-check-the-end-of-life-of-nixpkgs-in-flake-lock.md
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md

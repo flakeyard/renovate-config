@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Unit tests of scripts/check/lookup.sh with a stub of renovate, which saves
-# the renovate.json of the fixture repository and writes the report $REPORT.
+# the renovate.json of the fixture repository, writes the report $REPORT and,
+# unless $LOG is empty, the log $LOG.
 # Inputs (environment): SHELL_LIB, the shell library; SCRIPTS, the scripts
 # directory.
 # shellcheck disable=SC2154 # work comes from setup of the harness.
@@ -11,6 +12,8 @@ export LC_ALL=C
 source "$(dirname -- "${BASH_SOURCE[0]}")/../lib.sh"
 
 empty_report='{"problems": [], "repositories": {"local": {"problems": [], "packageFiles": {}}}}'
+# A log of Renovate without branches.
+quiet_log='{"msg": "Repository started"}'
 
 # setup_lookup: a case with the stub of renovate first on PATH and one case of
 # the lookup tests.
@@ -23,6 +26,7 @@ setup_lookup() {
 cp renovate.json "$CONFIG"
 [[ -f flake.nix ]] || exit 1
 for arg; do [[ $arg == --report-path=* ]] && printf '%s\n' "$REPORT" >"${arg#--report-path=}"; done
+[[ -z $LOG ]] || printf '%s\n' "$LOG" >"$LOG_FILE"
 true
 STUB
   chmod +x "$work/bin/renovate"
@@ -30,7 +34,7 @@ STUB
   echo default >"$work/cases/one/preset"
   echo 'include "lookup"; empty' >"$work/cases/one/expect.jq"
   echo 'def nothing: empty;' >"$work/cases/lookup.jq"
-  apply PATH="$work/bin:$TESTING_BIN:$HOST_PATH" CONFIG="$work/config" REPORT="$empty_report"
+  apply PATH="$work/bin:$TESTING_BIN:$HOST_PATH" CONFIG="$work/config" REPORT="$empty_report" LOG="$quiet_log"
 }
 
 # lookup NAME EXPECTED ARG...: run the lookup with a token and ARG.
@@ -72,6 +76,21 @@ finish
 setup_lookup
 rm -- "$work/cases/one/fixture/flake.nix"
 lookup "lookup: Renovate fails" fail 0123abc "$work/cases/one"
+expect message "the lookup could not run"
+finish
+
+setup_lookup
+apply LOG='{"msg": "branches", "branches": [{"prTitle": "ci(deps): a"}, {"prTitle": "fix(deps): b"}]}
+{"msg": "Repository finished"}'
+# shellcheck disable=SC2016 # a jq variable, not one of the shell.
+echo '$branches[].prTitle' >"$work/cases/one/expect.jq"
+lookup "lookup: the branches of the log" fail 0123abc "$work/cases/one"
+expect message "cases/one: ci(deps): a; fix(deps): b"
+finish
+
+setup_lookup
+apply LOG=""
+lookup "lookup: Renovate writes no log" fail 0123abc "$work/cases/one"
 expect message "the lookup could not run"
 finish
 

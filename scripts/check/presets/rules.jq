@@ -124,6 +124,31 @@ def shell_library_problems:
   elif typed_rule_indexes(gives_shell_library_fix) != [] then "only the presets of actions and workflows give fix to flakeyard/action-shell-lib (FY-0035)"
   else empty end;
 
+# The atoms in the form Renovate gives flake inputs: development tools, whose
+# updates change nothing consumers receive (FY-0038).
+def atom_inputs: "https://github.com/flakeyard/atom-*";
+
+# gives_atoms_ci: whether the input package rule gives ci to every update of
+# an atom input and to nothing else.
+def gives_atoms_ci:
+  .semanticCommitType == "ci"
+  and .matchManagers == ["nix"]
+  and .matchPackageNames == [atom_inputs]
+  and (keys - ["description", "matchManagers", "matchPackageNames", "semanticCommitType"] == []);
+
+# atom_problems: the default preset gives ci to the atoms.
+def atom_problems:
+  if [.packageRules // [] | .[] | select(gives_atoms_ci)] == [] then "no package rule gives ci to every update of an atom input (FY-0038)" else empty end;
+
+# atoms_released_problems: a rule of an internal preset that gives fix to
+# flake.nix leaves out the atoms, so that their ci of the default preset
+# stands.
+def atoms_released_problems:
+  .packageRules // [] | to_entries[]
+  | select(.value.semanticCommitType == "fix" and (.value.matchFileNames // [] | index("flake.nix")))
+  | select(.value.matchPackageNames // [] | index("!" + atom_inputs) | not)
+  | "packageRules[\(.key)] gives fix to the atoms in flake.nix (FY-0038)";
+
 def default_problems:
   preset_problems,
   (if has("extends") then "default.json must not extend presets (FY-0029)" else empty end),
@@ -133,6 +158,7 @@ def default_problems:
   (default_ignore_paths + fixture_paths - .ignorePaths | .[]
     | "ignorePaths must contain \(.)"),
   flake_input_problems,
+  atom_problems,
   shell_library_problems;
 
 # The files whose updates each internal preset gives a commit type: fix for
@@ -167,6 +193,7 @@ def internal_problems:
   preset_problems,
   (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end),
   commit_type_problems,
+  atoms_released_problems,
   shell_library_problems;
 
 # How a repository extends a preset: by the exact tag of a release, never by
