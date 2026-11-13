@@ -159,14 +159,16 @@ Open the repository in its dev container,
 [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json), with
 "Reopen in Container" in VS Code or `devcontainer up --workspace-folder .`. It
 has Nix, and the commands below run in it as in CI; tools that the image does
-not have come from nixpkgs, such as `nix run nixpkgs#actionlint`. Nix on the
-host works as well.
+not have come from nixpkgs, such as `nix run nixpkgs#typos`. Nix on the host
+works as well.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`, formatting
   (`nix fmt`), and the scripts with their unit tests (`tests/unit/`). The unit
   tests use the harness of `internal/testing` of
   [action-shell-lib][action-shell-lib] at the commit that `test.yaml` pins.
+  [atom-workflows][atom-workflows] lints the workflows with actionlint and
+  zizmor (`checks.workflows`).
 - `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
   Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
   with the preset named in `preset`, read from the commit `REF` of this
@@ -195,14 +197,14 @@ the presets.
 This repository is bootstrapped under [FY-0022][fy-0022]. Until their providers
 are released:
 
-- actionlint, zizmor, shellcheck, shfmt, statix, deadnix, Prettier,
-  markdownlint, typos and `reuse lint` run locally before every pull request
-  (provider: the atoms).
+- shellcheck, shfmt, statix, deadnix, Prettier, markdownlint, typos and
+  `reuse lint` run locally before every pull request (provider: the atoms).
 
 ## License
 
 [MIT](LICENSE).
 
+[atom-workflows]: https://github.com/flakeyard/atom-workflows
 [decisions]: https://github.com/flakeyard/decisions
 [fy-0016]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0016-pin-form.md
