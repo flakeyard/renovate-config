@@ -12,7 +12,7 @@
 # shellcheck source=/dev/null
 source "${SHELL_LIB:?}/internal/testing/case.sh"
 # shellcheck source=/dev/null
-source "$SHELL_LIB/internal/testing/checks.sh"
+source "${SHELL_LIB}/internal/testing/checks.sh"
 # The scripts that run takes paths in.
 # shellcheck disable=SC2034 # read by checks.sh
 code_root=${SCRIPTS:?}
