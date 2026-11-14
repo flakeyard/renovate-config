@@ -164,10 +164,17 @@ without its own `renovate.json`. The checks reject any other key.
 
 Open the repository in its dev container,
 [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json), with
-"Reopen in Container" in VS Code or `devcontainer up --workspace-folder .`. It
-has Nix, and the commands below run in it as in CI; tools that the image does
-not have come from nixpkgs, such as `nix run nixpkgs#typos`. Nix on the host
-works as well.
+"Reopen in Container" in VS Code or `devcontainer up --workspace-folder .`.
+`direnv` loads the development shell of [`flake.nix`](flake.nix) through
+[`.envrc`](.envrc) ([FY-0012][fy-0012]): [atom-workspace][atom-workspace] joins
+the tools of the atoms, and installs the git hooks each time the shell starts.
+The container runs `direnv allow` when it is created; run it once in every other
+worktree, and run `direnv block` before you check out a branch you do not trust,
+since entering the directory runs that branch's shell hook. Commit inside the
+container, whose Nix store has the tools of the hooks. The commands below run in
+it as in CI; tools that the shell does not have come from nixpkgs, such as
+`nix run nixpkgs#typos`. Nix on the host works as well: `direnv allow` or
+`nix develop` gives the same shell.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`, formatting
@@ -248,3 +255,4 @@ are released:
   https://api.scorecard.dev/projects/github.com/flakeyard/renovate-config/badge
 [scorecard-viewer]:
   https://scorecard.dev/viewer/?uri=github.com/flakeyard/renovate-config
+[atom-workspace]: https://github.com/flakeyard/atom-workspace
