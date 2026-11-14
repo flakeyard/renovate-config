@@ -49,7 +49,7 @@ lookup() {
 expect_extends() {
   local preset=$1
   jq -e --arg preset "${preset}" '. == {extends: [$preset]}' "${work}/config" >/dev/null \
-    || report "renovate.json is $(cat -- "${work}/config")"
+    || report "renovate.json is $(<"${work}/config")"
 }
 
 setup_lookup
