@@ -177,12 +177,16 @@ it as in CI; tools that the shell does not have come from nixpkgs, such as
 `nix develop` gives the same shell.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
-  validator and the rules of `scripts/check/presets/rules.jq`, formatting
-  (`nix fmt`), and the scripts with their unit tests (`tests/unit/`). The unit
-  tests use the harness of `internal/testing` of
-  [action-shell-lib][action-shell-lib] at the commit that `test.yaml` pins.
-  [atom-workflows][atom-workflows] lints the workflows with actionlint and
-  zizmor (`checks.workflows`).
+  validator and the rules of `scripts/check/presets/rules.jq`
+  (`checks.presets`), and the scripts with their unit tests (`tests/unit/`,
+  `checks.scripts`). The unit tests use the harness of `internal/testing` of
+  [action-shell-lib][action-shell-lib] at the commit that `test.yaml` pins. The
+  other checks come from the atoms: [atom-nix][atom-nix] lints the Nix files
+  with statix, deadnix and its relative paths hook (`checks.nix`),
+  [atom-shell][atom-shell] lints the scripts with shellcheck (`checks.shell`),
+  nixfmt and shfmt check their formatting through treefmt (`checks.treefmt`,
+  `nix fmt`), and [atom-workflows][atom-workflows] lints the workflows with
+  actionlint and zizmor (`checks.workflows`).
 - `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
   Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
   with the preset named in `preset`, read from the commit `REF` of this
@@ -212,13 +216,15 @@ the presets.
 This repository is bootstrapped under [FY-0022][fy-0022]. Until their providers
 are released:
 
-- shellcheck, shfmt, statix, deadnix, Prettier, markdownlint, typos and
-  `reuse lint` run locally before every pull request (provider: the atoms).
+- Prettier, markdownlint, typos and `reuse lint` run locally before every pull
+  request (provider: the atoms).
 
 ## License
 
 [MIT](LICENSE).
 
+[atom-nix]: https://github.com/flakeyard/atom-nix
+[atom-shell]: https://github.com/flakeyard/atom-shell
 [atom-workflows]: https://github.com/flakeyard/atom-workflows
 [decisions]: https://github.com/flakeyard/decisions
 [fy-0016]:
