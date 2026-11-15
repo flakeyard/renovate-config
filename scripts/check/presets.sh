@@ -17,7 +17,7 @@ repository_config=renovate.json
 # validate_global FILE: Renovate's validator on FILE as global configuration.
 validate_global() {
   local file=$1
-  renovate-config-validator --strict "$file"
+  renovate-config-validator --strict "${file}"
 }
 
 # validate_repository FILE...: Renovate's validator on each FILE as the
@@ -32,8 +32,8 @@ validate_repository() {
 # KIND, one per line.
 rule_problems() {
   local kind=$1 file=$2
-  jq -r -L "$rules_dir" --arg kind "$kind" --slurpfile schema "$RENOVATE_SCHEMA" \
-    'include "rules"; problems($kind)' "$file"
+  jq -r -L "${rules_dir}" --arg kind "${kind}" --slurpfile schema "${RENOVATE_SCHEMA}" \
+    'include "rules"; problems($kind)' "${file}"
 }
 
 # check_rules KIND FILE: prints the problems of FILE, a file of KIND; fails
@@ -41,14 +41,14 @@ rule_problems() {
 check_rules() {
   local kind=$1 file=$2 problems problem
   # Called in a condition, where errexit is off.
-  problems=$(rule_problems "$kind" "$file") || {
-    printf '::error file=%s::the rules could not be applied\n' "$file"
+  problems=$(rule_problems "${kind}" "${file}") || {
+    printf '::error file=%s::the rules could not be applied\n' "${file}"
     return 1
   }
-  [[ -z $problems ]] && return 0
+  [[ -z ${problems} ]] && return 0
   while IFS= read -r problem; do
-    printf '::error file=%s::%s\n' "$file" "$problem"
-  done <<<"$problems"
+    printf '::error file=%s::%s\n' "${file}" "${problem}"
+  done <<<"${problems}"
   return 1
 }
 
@@ -64,9 +64,9 @@ check_internal_presets_exist() {
 # reads from main is global configuration (FY-0029).
 validate_files() {
   local failed=0
-  validate_global "$inherited_config" || failed=1
-  validate_repository "$default_preset" "${internal_presets[@]}" "$repository_config" || failed=1
-  return "$failed"
+  validate_global "${inherited_config}" || failed=1
+  validate_repository "${default_preset}" "${internal_presets[@]}" "${repository_config}" || failed=1
+  return "${failed}"
 }
 
 # check_all_rules: the rules of every file, also of those that the validator
@@ -76,16 +76,16 @@ validate_files() {
 # repository, which extends a released preset like any other repository.
 check_all_rules() {
   local preset failed=0
-  check_rules inherited "$inherited_config" || failed=1
-  check_rules default "$default_preset" || failed=1
+  check_rules inherited "${inherited_config}" || failed=1
+  check_rules default "${default_preset}" || failed=1
   for preset in "${internal_presets[@]}"; do
-    check_rules internal "$preset" || failed=1
+    check_rules internal "${preset}" || failed=1
   done
-  check_rules repository "$repository_config" || failed=1
-  return "$failed"
+  check_rules repository "${repository_config}" || failed=1
+  return "${failed}"
 }
 
-cd -- "$repository"
+cd -- "${repository}"
 internal_presets=(internal/*.json)
 failed=0
 check_internal_presets_exist || failed=1

@@ -16,8 +16,8 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/../lib.sh"
 # setup_presets: a case with a writable copy of the presets.
 setup_presets() {
   setup
-  cp -r "$PRESETS" "$work/repo"
-  chmod -R u+w "$work/repo"
+  cp -r "${PRESETS}" "${work}/repo"
+  chmod -R u+w "${work}/repo"
 }
 
 # Paths and changes for the filters of the cases, which cannot contain "|":
@@ -41,14 +41,14 @@ helpers='
 
 # change FILE FILTER: rewrites FILE of the copy with the jq FILTER.
 change() {
-  local file=$work/repo/$1 filter=$2
-  jq "$helpers $filter" "$file" >"$work/changed" && mv -- "$work/changed" "$file"
+  local file=${work}/repo/$1 filter=$2
+  jq "${helpers} ${filter}" "${file}" >"${work}/changed" && mv -- "${work}/changed" "${file}"
 }
 
 # check NAME EXPECTED: run the check on the copy, with the schema of Renovate.
 check() {
   local name=$1 expected=$2
-  run "$name" "$expected" check/presets.sh RENOVATE_SCHEMA="$RENOVATE_SCHEMA" -- "$work/repo"
+  run "${name}" "${expected}" check/presets.sh RENOVATE_SCHEMA="${RENOVATE_SCHEMA}" -- "${work}/repo"
 }
 
 # apply_rules KIND FILE: the problems that rules.jq finds in FILE of the copy,
@@ -56,18 +56,18 @@ check() {
 # to the copy, as the check gives it, because the rules read its name.
 apply_rules() {
   local kind=$1 file=$2
-  (cd -- "$work/repo" && jq -r -L "$SCRIPTS/check/presets" --arg kind "$kind" \
-    --slurpfile schema "$RENOVATE_SCHEMA" 'include "rules"; problems($kind)' "$file")
+  (cd -- "${work}/repo" && jq -r -L "${SCRIPTS}/check/presets" --arg kind "${kind}" \
+    --slurpfile schema "${RENOVATE_SCHEMA}" 'include "rules"; problems($kind)' "${file}")
 }
 
 # rules NAME EXPECTED KIND FILE: apply the rules to FILE of the copy, a file of
 # KIND; EXPECTED is ok when they find no problem, fail when they find one.
 rules() {
   local name=$1 expected=$2 kind=$3 file=$4 status=0
-  apply_rules "$kind" "$file" >"$work/stdout" 2>"$work/stderr" || status=$?
+  apply_rules "${kind}" "${file}" >"${work}/stdout" 2>"${work}/stderr" || status=$?
   # The check fails on any problem, as on a failure of jq.
-  if ((status == 0)) && [[ -s $work/stdout ]]; then status=1; fi
-  outcome "$name" "$expected" "$status"
+  if ((status == 0)) && [[ -s ${work}/stdout ]]; then status=1; fi
+  outcome "${name}" "${expected}" "${status}"
 }
 
 setup_presets
@@ -82,9 +82,9 @@ finish
 # The kind of the file of a case is the first word of its name.
 while IFS='|' read -r name file filter message; do
   setup_presets
-  change "$file" "$filter"
-  rules "rules: $name" fail "${name%%,*}" "$file"
-  expect message "$message"
+  change "${file}" "${filter}"
+  rules "rules: ${name}" fail "${name%%,*}" "${file}"
+  expect message "${message}"
   finish
 done <<'CASES'
 inherited, a rule|org-inherited-config.json|.extends = [":semanticCommits"]|extends is not an onboarding key
@@ -142,10 +142,10 @@ CASES
 # Problems that only Renovate's validator finds, which names the file of each.
 while IFS='|' read -r name file filter message; do
   setup_presets
-  change "$file" "$filter"
-  check "presets: $name" fail
-  expect message "$message"
-  expect message "\"file\": \"$file\""
+  change "${file}" "${filter}"
+  check "presets: ${name}" fail
+  expect message "${message}"
+  expect message "\"file\": \"${file}\""
   finish
 done <<'CASES'
 inherited, an invalid value|org-inherited-config.json|.requireConfig = "sometimes"|Invalid value `sometimes` for `requireConfig`
@@ -155,22 +155,22 @@ CASES
 
 # A filter that fails in rules.jq fails the check instead of passing it.
 setup_presets
-cp -r "$SCRIPTS" "$work/scripts"
-chmod -R u+w "$work/scripts"
-printf 'def problems(kind): error("broken");\n' >"$work/scripts/check/presets/rules.jq"
+cp -r "${SCRIPTS}" "${work}/scripts"
+chmod -R u+w "${work}/scripts"
+printf 'def problems(kind): error("broken");\n' >"${work}/scripts/check/presets/rules.jq"
 # run takes the script from the broken copy.
-code_root=$work/scripts check "presets: broken rules" fail
+code_root=${work}/scripts check "presets: broken rules" fail
 expect message "the rules could not be applied"
 finish
 
 setup_presets
-rm -r -- "$work/repo/internal"
+rm -r -- "${work}/repo/internal"
 check "presets: no internal presets" fail
 expect message "There are no presets in internal/"
 finish
 
 setup_presets
-printf 'not JSON\n' >"$work/repo/org-inherited-config.json"
+printf 'not JSON\n' >"${work}/repo/org-inherited-config.json"
 check "presets: inherited, not JSON" fail
 expect message "could not be parsed"
 finish

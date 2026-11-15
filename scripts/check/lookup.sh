@@ -21,10 +21,10 @@ export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 # preset_reference PRESET: how a repository extends PRESET at REF.
 preset_reference() {
   local preset=$1
-  if [[ $preset == default ]]; then
-    printf 'github>%s#%s\n' "$repository" "$ref"
+  if [[ ${preset} == default ]]; then
+    printf 'github>%s#%s\n' "${repository}" "${ref}"
   else
-    printf 'github>%s//%s#%s\n' "$repository" "$preset" "$ref"
+    printf 'github>%s//%s#%s\n' "${repository}" "${preset}" "${ref}"
   fi
 }
 
@@ -35,13 +35,13 @@ preset_reference() {
 # CASE/fixture and a renovate.json that extends the preset of CASE.
 fixture_repository() {
   local case=$1 dir=$2 preset reference
-  preset=$(<"$case/preset") \
-    && reference=$(preset_reference "$preset") \
-    && cp -r -- "$case/fixture/." "$dir" \
-    && jq -n --arg preset "$reference" '{extends: [$preset]}' >"$dir/renovate.json" \
-    && git -C "$dir" init -q \
-    && git -C "$dir" add -A \
-    && git -C "$dir" -c user.name=lookup -c user.email=lookup@localhost commit -q -m fixture
+  preset=$(<"${case}/preset") \
+    && reference=$(preset_reference "${preset}") \
+    && cp -r -- "${case}/fixture/." "${dir}" \
+    && jq -n --arg preset "${reference}" '{extends: [$preset]}' >"${dir}/renovate.json" \
+    && git -C "${dir}" init -q \
+    && git -C "${dir}" add -A \
+    && git -C "${dir}" -c user.name=lookup -c user.email=lookup@localhost commit -q -m fixture
 }
 
 # look_up DIR REPORT LOG: Renovate's lookup of the repository DIR, its report
@@ -53,10 +53,10 @@ fixture_repository() {
 # the output shows only warnings and errors.
 look_up() {
   local dir=$1 report=$2 log=$3 log_file
-  log_file=$(realpath -m --relative-to="$dir" -- "$log") \
-    && (cd -- "$dir" && RENOVATE_BASE_DIR=$work/renovate LOG_FILE=$log_file LOG_FILE_LEVEL=trace \
+  log_file=$(realpath -m --relative-to="${dir}" -- "${log}") \
+    && (cd -- "${dir}" && RENOVATE_BASE_DIR=${work}/renovate LOG_FILE=${log_file} LOG_FILE_LEVEL=trace \
       LOG_LEVEL=warn \
-      renovate --platform=local --dry-run=lookup --report-type=file --report-path="$report")
+      renovate --platform=local --dry-run=lookup --report-type=file --report-path="${report}")
 }
 
 # branches LOG BRANCHES: the branches of the log LOG, one JSON object per
@@ -66,14 +66,14 @@ look_up() {
 # drops the message gives no branches, and the expectations on them fail.
 branches() {
   local log=$1 branches=$2
-  jq -c 'select(.msg == "branches") | .branches[]' "$log" >"$branches"
+  jq -c 'select(.msg == "branches") | .branches[]' "${log}" >"${branches}"
 }
 
 # failed_expectations CASE REPORT BRANCHES: what CASE/expect.jq finds wrong in
 # REPORT and the branches in the file BRANCHES.
 failed_expectations() {
   local case=$1 report=$2 branches=$3
-  jq -r -L "$(dirname -- "$case")" --slurpfile branches "$branches" -f "$case/expect.jq" "$report"
+  jq -r -L "$(dirname -- "${case}")" --slurpfile branches "${branches}" -f "${case}/expect.jq" "${report}"
 }
 
 # look_up_case CASE: the report of Renovate for CASE, in $work/report.json,
@@ -81,25 +81,25 @@ failed_expectations() {
 look_up_case() {
   local case=$1
   rm -rf -- "${work:?}"/* \
-    && mkdir -- "$work/repository" \
-    && fixture_repository "$case" "$work/repository" \
-    && look_up "$work/repository" "$work/report.json" "$work/log.json" \
-    && branches "$work/log.json" "$work/branches.json"
+    && mkdir -- "${work}/repository" \
+    && fixture_repository "${case}" "${work}/repository" \
+    && look_up "${work}/repository" "${work}/report.json" "${work}/log.json" \
+    && branches "${work}/log.json" "${work}/branches.json"
 }
 
 # run_case CASE: runs the test CASE; fails when an expectation fails.
 run_case() {
   local case=${1%/} failures
-  if ! look_up_case "$case" \
-    || ! failures=$(failed_expectations "$case" "$work/report.json" "$work/branches.json"); then
-    printf '::error::%s: the lookup could not run\n' "$case"
+  if ! look_up_case "${case}" \
+    || ! failures=$(failed_expectations "${case}" "${work}/report.json" "${work}/branches.json"); then
+    printf '::error::%s: the lookup could not run\n' "${case}"
     return 1
   fi
-  if [[ -n $failures ]]; then
-    printf '::error::%s: %s\n' "$case" "${failures//$'\n'/; }"
+  if [[ -n ${failures} ]]; then
+    printf '::error::%s: %s\n' "${case}" "${failures//$'\n'/; }"
     return 1
   fi
-  echo "passed: $case"
+  echo "passed: ${case}"
 }
 
 if [[ -z ${RENOVATE_GITHUB_COM_TOKEN-} ]]; then
@@ -110,6 +110,6 @@ work=$(mktemp -d)
 trap 'rm -rf -- "$work"' EXIT
 failed=0
 for case in "$@"; do
-  run_case "$case" || failed=1
+  run_case "${case}" || failed=1
 done
-exit "$failed"
+exit "${failed}"
