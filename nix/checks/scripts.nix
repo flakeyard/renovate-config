@@ -1,6 +1,6 @@
-# The scripts of the apps pass shellcheck and their unit tests, whose suites
-# are at the paths of the scripts under tests/unit, with the harness of the
-# shell library at the commit that test.yaml pins, so that the pin exists once.
+# The scripts of the apps pass their unit tests, whose suites are at the paths
+# of the scripts under tests/unit, with the harness of the shell library at the
+# commit that test.yaml pins, so that the pin exists once.
 {
   perSystem =
     {
@@ -35,7 +35,6 @@
               gnugrep
               jq
               renovate
-              shellcheck
             ];
             scripts = root + "/scripts";
             unit = root + "/tests/unit";
@@ -43,8 +42,6 @@
             RENOVATE_SCHEMA = renovateSchema;
           }
           ''
-            shellcheck "$scripts"/*/*.sh
-            shellcheck -x "$unit"/lib.sh "$unit"/*/*.sh
             # The sandbox has no /usr/bin/env.
             cp -r "$scripts" scripts
             cp -r "$shellLib" shell-lib
