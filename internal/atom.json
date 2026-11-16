@@ -1,5 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "flakeyard atom repositories: default rules; consumers follow every input, so no update releases",
-  "extends": ["/default"]
+  "description": "flakeyard atom repositories: default rules; consumers follow every input, so no update releases, except lib-atom, which the atom pins itself",
+  "extends": ["/default"],
+  "packageRules": [
+    {
+      "description": "Updates of lib-atom are fix, so that they are released: the atom pins it in its root flake.lock and a release of the atom delivers it to projects; its dev flake takes that pin; the rule follows the other commit types of the presets to win over them (FY-0040)",
+      "matchPackageNames": ["https://github.com/flakeyard/lib-atom"],
+      "semanticCommitType": "fix"
+    }
+  ]
 }

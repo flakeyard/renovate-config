@@ -2,8 +2,8 @@
 # input on its moving tag v0 too; a flake under a directory named fixture or
 # fixtures is not updated (FY-0016). The case runs internal/image, and only the default
 # preset enables flake inputs, so it shows that /default resolves. The flake
-# is the image, so its inputs are fix, but the atom is a development tool and
-# ci (FY-0038).
+# is the image, so its inputs are fix, the libraries too, but the atom is a
+# development tool and ci (FY-0038).
 include "lookup";
 
 def new_commit_of($ref): .updateType == "digest" and .newValue == $ref and (.newDigest | test(sha_pattern));
@@ -19,4 +19,6 @@ no_problems,
   | "\(.) is updated"),
 expect_commit_type("nixpkgs"; "fix"),
 expect_commit_type("action-setup-nix"; "fix"),
+expect_commit_type("lib-atom"; "fix"),
+expect_commit_type("lib-actions"; "fix"),
 expect_commit_type("atom-workflows"; "ci")

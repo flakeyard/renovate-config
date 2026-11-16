@@ -79,50 +79,70 @@ def flake_input_problems:
     ($disabled - $unwanted - newer_update_types | .[]
       | "update type \(.) of flake inputs must not be disabled (FY-0016)");
 
-# The names of the shared shell library in the managers that may pin it:
-# github-actions by owner and name, nix by URL (FY-0035).
-def shell_library_names: ["flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"];
+# The libraries whose updates are fix in the presets of the repositories that
+# ship them to their users, and nowhere else (FY-0040):
+# - name: how the messages name the library;
+# - names: its names in the managers that may pin it, github-actions by owner
+#   and name, nix by URL;
+# - presets: the presets that give it fix, which owners names in messages;
+# - decisions: the decisions behind the rule.
+# The shell library is run by actions in action.yml and by workflows in the
+# workflow their callers use; the other presets leave its updates the type of
+# the files they change, ci in CI (FY-0035, FY-0007). Its old name,
+# action-shell-lib, stays until the repository is deleted, since its consumers
+# move to lib-actions one by one. An atom pins lib-atom in its root flake.lock
+# and a release of the atom delivers it to projects; its dev flake takes that
+# pin, so lib-atom has no other.
+def libraries: [
+  {
+    name: "flakeyard/lib-actions",
+    names: [
+      "flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions",
+      "flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"
+    ],
+    presets: ["internal/action.json", "internal/workflow.json"],
+    owners: "the presets of actions and workflows",
+    decisions: "FY-0035, FY-0040"
+  },
+  {
+    name: "flakeyard/lib-atom",
+    names: ["https://github.com/flakeyard/lib-atom"],
+    presets: ["internal/atom.json"],
+    owners: "the preset of atoms",
+    decisions: "FY-0040"
+  }
+];
 
-# The only keys of the rule that gives fix to the shell library: one more
-# condition would leave some of its updates out.
-def shell_library_rule_keys: ["description", "matchPackageNames", "semanticCommitType"];
+# The only keys of the rule that gives fix to a library: one more condition
+# would leave some of its updates out.
+def library_rule_keys: ["description", "matchPackageNames", "semanticCommitType"];
 
-# gives_shell_library_fix: whether the input package rule gives fix to every
-# update of the shell library.
-def gives_shell_library_fix:
+# gives_fix(NAMES): whether the input package rule gives fix to every update
+# of the library with the names NAMES.
+def gives_fix($names):
   .semanticCommitType == "fix"
-  and (.matchPackageNames // [] | sort) == (shell_library_names | sort)
-  and (keys - shell_library_rule_keys == []);
+  and (.matchPackageNames // [] | sort) == ($names | sort)
+  and (keys - library_rule_keys == []);
 
 # typed_rule_indexes(SELECTION): the indexes of the package rules of the
 # input that give a commit type and hold SELECTION.
 def typed_rule_indexes(selection):
   [.packageRules // [] | to_entries[] | select(.value | has("semanticCommitType") and selection) | .key];
 
-# The presets of repositories that ship the shell library to their users:
-# actions run it in action.yml, workflows in the workflow their callers use.
-# The other presets leave its updates the type of the files they change, ci
-# in CI (FY-0035, FY-0007).
-def shell_library_fix_presets: ["internal/action.json", "internal/workflow.json"];
-
-# ships_shell_library: whether the input preset is one of
-# shell_library_fix_presets.
-def ships_shell_library: shell_library_fix_presets | any(. == input_filename);
-
-# shell_library_fix_problems: updates of the shell library are fix, by a rule
-# after every other commit type of the preset, because a later rule wins.
-def shell_library_fix_problems:
-  typed_rule_indexes(gives_shell_library_fix) as $fixes
-  | if $fixes == [] then "no package rule gives fix to every update of flakeyard/action-shell-lib (FY-0035)"
-    elif $fixes[-1] != typed_rule_indexes(true)[-1] then "the rule that gives fix to flakeyard/action-shell-lib must follow every other commit type (FY-0035)"
+# library_fix_problems(LIBRARY): updates of LIBRARY are fix, by a rule after
+# every other commit type of the preset, because a later rule wins.
+def library_fix_problems($library):
+  typed_rule_indexes(gives_fix($library.names)) as $fixes
+  | if $fixes == [] then "no package rule gives fix to every update of \($library.name) (\($library.decisions))"
+    elif $fixes[-1] != typed_rule_indexes(true)[-1] then "the rule that gives fix to \($library.name) must follow every other commit type (\($library.decisions))"
     else empty end;
 
-# shell_library_problems: only the presets of shell_library_fix_presets give
-# fix to the shell library.
-def shell_library_problems:
-  if ships_shell_library then shell_library_fix_problems
-  elif typed_rule_indexes(gives_shell_library_fix) != [] then "only the presets of actions and workflows give fix to flakeyard/action-shell-lib (FY-0035)"
-  else empty end;
+# library_problems: only the presets of each library give it fix.
+def library_problems:
+  libraries[] as $library
+  | if any($library.presets[]; . == input_filename) then library_fix_problems($library)
+    elif typed_rule_indexes(gives_fix($library.names)) != [] then "only \($library.owners) may give fix to \($library.name) (\($library.decisions))"
+    else empty end;
 
 # The atoms in the form Renovate gives flake inputs: development tools, whose
 # updates change nothing consumers receive (FY-0038).
@@ -159,7 +179,7 @@ def default_problems:
     | "ignorePaths must contain \(.)"),
   flake_input_problems,
   atom_problems,
-  shell_library_problems;
+  library_problems;
 
 # The files whose updates each internal preset gives a commit type: fix for
 # the files consumers receive, ci for those that only check the repository
@@ -194,7 +214,7 @@ def internal_problems:
   (if .extends != ["/default"] then "an internal preset must extend exactly [\"/default\"]" else empty end),
   commit_type_problems,
   atoms_released_problems,
-  shell_library_problems;
+  library_problems;
 
 # How a repository extends a preset: by the exact tag of a release, never by
 # the moving tag vX, a branch or a reference relative to the repository
