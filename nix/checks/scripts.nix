@@ -11,15 +11,15 @@
       ...
     }:
     let
-      pin = builtins.match ".*uses: flakeyard/action-shell-lib@([0-9a-f]{40}) .*" (
+      pin = builtins.match ".*uses: flakeyard/lib-actions@([0-9a-f]{40}) .*" (
         builtins.readFile (root + "/.github/workflows/test.yaml")
       );
       shellLib =
         if pin == null then
-          throw "test.yaml pins no commit of flakeyard/action-shell-lib"
+          throw "test.yaml pins no commit of flakeyard/lib-actions"
         else
           builtins.fetchGit {
-            url = "https://github.com/flakeyard/action-shell-lib";
+            url = "https://github.com/flakeyard/lib-actions";
             rev = builtins.head pin;
             shallow = true;
           };
