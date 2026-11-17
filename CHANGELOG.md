@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/flakeyard/renovate-config/compare/v0.2.3...v0.3.0) (2026-11-17)
+
+
+### Features
+
+* make lib-atom and lib-actions updates fix in the presets that ship them ([#96](https://github.com/flakeyard/renovate-config/issues/96)) ([3e63d8f](https://github.com/flakeyard/renovate-config/commit/3e63d8f198caab83dd6f5d9d66a0f96c4e870d41))
+
 ## [0.2.3](https://github.com/flakeyard/renovate-config/compare/v0.2.2...v0.2.3) (2026-11-13)
 
 
