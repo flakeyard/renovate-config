@@ -38,6 +38,44 @@
         "url": "https://github.com/flakeyard/atom-workflows"
       }
     },
+    "lib-actions": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794845388,
+        "narHash": "sha256-k8siH/1PnpWt9pzaJMn2v+SzkAQh5tpu6u68U4kw5BA=",
+        "ref": "main",
+        "rev": "dd39af38aa1e646f1a8c9a1a6e05384f068e46da",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/lib-actions"
+      },
+      "original": {
+        "ref": "main",
+        "rev": "dd39af38aa1e646f1a8c9a1a6e05384f068e46da",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/lib-actions"
+      }
+    },
+    "lib-atom": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794845386,
+        "narHash": "sha256-Brr2Sg3Wl5RVayf3xZdzAT+ajjQhqkUlDEWhSEShqdc=",
+        "ref": "main",
+        "rev": "5bcd9530720c5ff007f666987e64909cb70b0d9f",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/lib-atom"
+      },
+      "original": {
+        "ref": "main",
+        "rev": "5bcd9530720c5ff007f666987e64909cb70b0d9f",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/flakeyard/lib-atom"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793183032,
@@ -60,6 +98,8 @@
       "inputs": {
         "action-setup-nix": "action-setup-nix",
         "atom-workflows": "atom-workflows",
+        "lib-actions": "lib-actions",
+        "lib-atom": "lib-atom",
         "nixpkgs": "nixpkgs"
       }
     }

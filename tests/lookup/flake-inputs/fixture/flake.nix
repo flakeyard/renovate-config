@@ -12,6 +12,16 @@
       url = "git+https://github.com/flakeyard/atom-workflows?ref=v0&rev=648f7c488e6284f185c69bc22d9a8b5d971c3ce2&shallow=1";
       flake = false;
     };
+    # The first commits of the libraries, which an atom and an action ship to
+    # their users (FY-0040).
+    lib-atom = {
+      url = "git+https://github.com/flakeyard/lib-atom?ref=main&rev=5bcd9530720c5ff007f666987e64909cb70b0d9f&shallow=1";
+      flake = false;
+    };
+    lib-actions = {
+      url = "git+https://github.com/flakeyard/lib-actions?ref=main&rev=dd39af38aa1e646f1a8c9a1a6e05384f068e46da&shallow=1";
+      flake = false;
+    };
   };
 
   outputs = _: { };

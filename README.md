@@ -30,16 +30,19 @@ receive `fix(deps)`, so that they are released ([FY-0007][fy-0007]):
 | Preset              | Repositories | `fix(deps)` for           |
 | ------------------- | ------------ | ------------------------- |
 | `internal/action`   | `action-*`   | `action.yml`, `flake.nix` |
-| `internal/atom`     | `atom-*`     | nothing                   |
+| `internal/atom`     | `atom-*`     | the input `lib-atom`      |
 | `internal/image`    | `image-*`    | `flake.nix`               |
 | `internal/template` | `template-*` | `template/**`             |
 | `internal/workflow` | `workflow-*` | `.github/actions/**`      |
 
-Consumers of an atom follow every input of it, so its updates are not released.
-The flake of a workflow repository only checks and tests it, so
-`internal/workflow` makes updates of `flake.nix` `ci(deps)`.
-`scripts/check/presets/rules.jq` holds the same table and fails when a preset
-differs from it.
+Consumers of an atom follow every input of it, so its updates are not released,
+except those of `lib-atom`: the atom pins it in its root `flake.lock`, which its
+dev flake also reads, and a release of the atom delivers it to projects, so
+`internal/atom` makes its updates `fix(deps)` by a rule that follows the other
+commit types ([FY-0040][fy-0040]). The flake of a workflow repository only
+checks and tests it, so `internal/workflow` makes updates of `flake.nix`
+`ci(deps)`. `scripts/check/presets/rules.jq` holds the same table and fails when
+a preset differs from it.
 
 Atoms are development tools: updates of their flake inputs change nothing that
 consumers receive, so the default preset makes them `ci(deps)` in every
@@ -48,12 +51,16 @@ repository, and the `fix(deps)` of `flake.nix` in `internal/action` and
 flake only imports atoms makes every update of its `flake.nix` `ci(deps)` in its
 `renovate.json`.
 
-Actions and workflows run `flakeyard/action-shell-lib` for their users, so
-`internal/action` and `internal/workflow` make its updates `fix(deps)` wherever
-it is pinned; the rule follows the other commit types, because a later rule
-wins. Other repositories use the library only in their CI, where its updates are
-`ci(deps)` ([FY-0035][fy-0035]). A workflow that uses it only in its tests makes
-them `ci(deps)` in its `renovate.json`.
+Actions and workflows run the shell library `flakeyard/lib-actions` for their
+users, so `internal/action` and `internal/workflow` make its updates `fix(deps)`
+wherever it is pinned; the rule follows the other commit types, because a later
+rule wins. Other repositories use the library only in their CI, where its
+updates are `ci(deps)` ([FY-0035][fy-0035]). A workflow that uses it only in its
+tests makes them `ci(deps)` in its `renovate.json`. The rule also covers the old
+name of the library, `flakeyard/action-shell-lib`, until that repository is
+deleted, since its consumers move to `lib-actions` one by one
+([FY-0040][fy-0040]). `scripts/check/presets/rules.jq` fails when any other
+preset makes updates of `lib-actions` or `lib-atom` `fix(deps)`.
 
 ```json
 {
@@ -247,6 +254,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0035-extract-logic-that-has-two-users.md
 [fy-0038]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0038-roll-out-the-atoms.md
+[fy-0040]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0040-share-code-through-lib-repositories.md
 [fy-0036]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0036-check-the-end-of-life-of-nixpkgs-in-flake-lock.md
 [versioning]: https://github.com/flakeyard/.github/blob/main/VERSIONING.md
