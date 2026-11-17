@@ -187,9 +187,9 @@ it as in CI; tools that the shell does not have come from nixpkgs, such as
   validator and the rules of `scripts/check/presets/rules.jq`
   (`checks.presets`), and the scripts with their unit tests (`tests/unit/`,
   `checks.scripts`). The unit tests use the harness of `internal/testing` of
-  [action-shell-lib][action-shell-lib] at the commit that `test.yaml` pins. The
-  other checks come from the atoms: [atom-nix][atom-nix] lints the Nix files
-  with statix, deadnix and its relative paths hook (`checks.nix`),
+  [lib-actions][lib-actions] at the commit that `test.yaml` pins. The other
+  checks come from the atoms: [atom-nix][atom-nix] lints the Nix files with
+  statix, deadnix and its relative paths hook (`checks.nix`),
   [atom-shell][atom-shell] lints the scripts with shellcheck (`checks.shell`),
   nixfmt and shfmt check their formatting through treefmt (`checks.treefmt`,
   `nix fmt`), and [atom-workflows][atom-workflows] lints the workflows with
@@ -263,7 +263,7 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0003-repository-naming.md
 [workflow-check-adr-0001]:
   https://github.com/flakeyard/workflow-check/blob/main/docs/adr/records/0001-check-pull-requests-and-pushes.md
-[action-shell-lib]: https://github.com/flakeyard/action-shell-lib
+[lib-actions]: https://github.com/flakeyard/lib-actions
 [workflow-check]: https://github.com/flakeyard/workflow-check
 [workflow-scorecard]: https://github.com/flakeyard/workflow-scorecard
 [scorecard-badge]:
