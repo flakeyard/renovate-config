@@ -180,7 +180,7 @@ worktree, and run `direnv block` before you check out a branch you do not trust,
 since entering the directory runs that branch's shell hook. Commit inside the
 container, whose Nix store has the tools of the hooks. The commands below run in
 it as in CI; tools that the shell does not have come from nixpkgs, such as
-`nix run nixpkgs#typos`. Nix on the host works as well: `direnv allow` or
+`nix run nixpkgs#reuse`. Nix on the host works as well: `direnv allow` or
 `nix develop` gives the same shell.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
@@ -191,9 +191,16 @@ it as in CI; tools that the shell does not have come from nixpkgs, such as
   checks come from the atoms: [atom-nix][atom-nix] lints the Nix files with
   statix, deadnix and its relative paths hook (`checks.nix`),
   [atom-shell][atom-shell] lints the scripts with shellcheck (`checks.shell`),
-  nixfmt and shfmt check their formatting through treefmt (`checks.treefmt`,
-  `nix fmt`), and [atom-workflows][atom-workflows] lints the workflows with
-  actionlint and zizmor (`checks.workflows`).
+  [atom-markdown][atom-markdown] lints the Markdown files with markdownlint and
+  checks their links inside the repository with lychee (`checks.markdown`),
+  [atom-text][atom-text] checks the spelling of every file with typos and its
+  line endings, final newline and trailing whitespace with editorconfig-checker
+  (`checks.text`), [atom-data-formats][atom-data-formats] lints the YAML, JSON
+  and TOML files with yamllint, biome and taplo and `renovate.json` with
+  check-jsonschema (`checks.data-formats`), nixfmt, shfmt, prettier and taplo
+  check the formatting through treefmt (`checks.treefmt`, `nix fmt`), and
+  [atom-workflows][atom-workflows] lints the workflows with actionlint and
+  zizmor (`checks.workflows`).
 - `nix run .#check-lookup -- REF tests/lookup/*/` runs the lookup tests:
   Renovate looks up the updates of the files in `tests/lookup/<case>/fixture/`
   with the preset named in `preset`, read from the commit `REF` of this
@@ -207,10 +214,12 @@ and then calls [workflow-check][workflow-check], which builds the checks of the
 flake on both architectures and checks pull request titles, `renovate.json` and
 the immutable release behind its preset tag ([workflow-check
 ADR-0001][workflow-check-adr-0001]). Its weekly run also checks the end of life
-of the nixpkgs branch in `flake.lock` ([FY-0036][fy-0036]). `scorecard.yaml`
-runs OpenSSF Scorecard through [workflow-scorecard][workflow-scorecard].
-Releases are made by release-please through `flakeyard/workflow-release`;
-`0.y.z` releases are pre-releases.
+of the nixpkgs branch in `flake.lock` ([FY-0036][fy-0036]), every link of the
+Markdown files and runs the audits of zizmor that need the network, with the
+apps `markdown-links` and `workflows-online`. `scorecard.yaml` runs OpenSSF
+Scorecard through [workflow-scorecard][workflow-scorecard]. Releases are made by
+release-please through `flakeyard/workflow-release`; `0.y.z` releases are
+pre-releases.
 
 This repository extends its own default preset by the tag of its latest release,
 so every release comes back as a Renovate pull request here first. Read the job
@@ -223,15 +232,18 @@ the presets.
 This repository is bootstrapped under [FY-0022][fy-0022]. Until their providers
 are released:
 
-- Prettier, markdownlint, typos and `reuse lint` run locally before every pull
-  request (provider: the atoms).
+- `reuse lint` runs locally before every pull request (provider: an atom that is
+  not released yet).
 
 ## License
 
 [MIT](LICENSE).
 
+[atom-data-formats]: https://github.com/flakeyard/atom-data-formats
+[atom-markdown]: https://github.com/flakeyard/atom-markdown
 [atom-nix]: https://github.com/flakeyard/atom-nix
 [atom-shell]: https://github.com/flakeyard/atom-shell
+[atom-text]: https://github.com/flakeyard/atom-text
 [atom-workflows]: https://github.com/flakeyard/atom-workflows
 [decisions]: https://github.com/flakeyard/decisions
 [fy-0016]:
