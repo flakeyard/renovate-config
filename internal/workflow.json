@@ -14,8 +14,10 @@
       "semanticCommitType": "ci"
     },
     {
-      "description": "Updates of the shared shell library are fix, so that they are released: the workflow runs it for its callers; the rule follows the other commit types of the presets to win over them (FY-0035)",
+      "description": "Updates of the shared shell library are fix, so that they are released: the workflow runs it for its callers; flakeyard/action-shell-lib stays until it is deleted, since its consumers move to lib-actions one by one; the rule follows the other commit types of the presets to win over them (FY-0035, FY-0040)",
       "matchPackageNames": [
+        "flakeyard/lib-actions",
+        "https://github.com/flakeyard/lib-actions",
         "flakeyard/action-shell-lib",
         "https://github.com/flakeyard/action-shell-lib"
       ],
