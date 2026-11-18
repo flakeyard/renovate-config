@@ -8,11 +8,13 @@
 # organization settings in the Mend Developer Portal (FY-0029).
 def onboarding_settings: {onboarding: false, requireConfig: "required"};
 
-# Settings of default.json that decisions require, with the reason.
+# Settings of default.json that decisions or the load of CI require, with the
+# reason.
 def required_settings: [
   {path: ["automerge"], value: false, reason: "no decision enables it; FY-0016 only allows it for atoms within a major version"},
   {path: ["dependencyDashboardApproval"], value: false, reason: "updates arrive as pull requests (FY-0028)"},
   {path: ["minimumReleaseAge"], value: "3 days", reason: "FY-0028"},
+  {path: ["rebaseWhen"], value: "conflicted", reason: "required checks need an up-to-date branch, so a rebase of every pull request that falls behind would run CI on all of them after each merge; the branch is updated right before it is merged"},
   {path: ["prHourlyLimit"], value: 0, reason: "a release of flakeyard reaches every repository at once (FY-0028)"},
   {path: ["minimumReleaseAgeBehaviour"], value: "timestamp-optional", reason: "nothing is held back forever (FY-0028)"},
   {path: ["lockFileMaintenance", "enabled"], value: false, reason: "FY-0016"},

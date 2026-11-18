@@ -100,8 +100,15 @@ new Renovate version cannot change them ([FY-0029][fy-0029]). Every package rule
 names its decision in its `description`.
 
 - **Pull requests.** Every update is a pull request without approval on the
-  Dependency Dashboard and without automerge; branches are rebased when they
-  fall behind. The Dependency Dashboard lists pending updates.
+  Dependency Dashboard and without automerge. The Dependency Dashboard lists
+  pending updates.
+- **Rebases.** Renovate rebases a branch only when it conflicts with `main`
+  (`rebaseWhen: "conflicted"`), not when it falls behind. Rulesets require
+  checks on a branch that is up to date with `main`, so rebasing every pull
+  request that falls behind would run CI on every open pull request of a
+  repository after each merge, while each of them waits for a runner. A branch
+  that is behind is updated when it is merged, for example by "Update branch" on
+  GitHub, and its checks run once more then.
 - **Commits and labels.** Commit messages are `chore(deps): ...`, or
   `ci(deps): ...` for files under `.github/workflows/` and `.github/actions/`
   ([FY-0007][fy-0007]), and for flake inputs of atoms ([FY-0038][fy-0038]). Pull
@@ -124,9 +131,8 @@ names its decision in its `description`.
   is off ([FY-0016][fy-0016], [FY-0036][fy-0036]). Pull requests of third-party
   inputs are not updated outside their schedule (`updateNotScheduled: false`):
   nixpkgs gets new commits several times a day, and each would replace the
-  commit under review and run the checks again. Such a pull request that falls
-  behind `main` waits for the next Monday to be rebased, or for "Update branch"
-  on GitHub.
+  commit under review and run the checks again. Such a pull request that
+  conflicts with `main` waits for the next Monday to be rebased.
 - **Presets.** Only exact tags `vX.Y.Z`, never `vX` ([FY-0028][fy-0028]).
 - **Other managers.** Every manager that Renovate enables by default runs, such
   as the one for the dev container image in `devcontainer.json`
