@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/flakeyard/renovate-config/compare/v0.3.0...v0.3.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* rebase update branches only when they conflict ([#110](https://github.com/flakeyard/renovate-config/issues/110)) ([be2cc0d](https://github.com/flakeyard/renovate-config/commit/be2cc0d5f153eef8226ed8e20e6a34e60e78d170))
+
 ## [0.3.0](https://github.com/flakeyard/renovate-config/compare/v0.2.3...v0.3.0) (2026-11-17)
 
 
