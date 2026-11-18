@@ -8,7 +8,7 @@
   "semanticCommitType": "chore",
   "semanticCommitScope": "deps",
   "labels": ["dependencies"],
-  "rebaseWhen": "behind-base-branch",
+  "rebaseWhen": "conflicted",
   "automerge": false,
   "prHourlyLimit": 0,
   "minimumReleaseAge": "3 days",
