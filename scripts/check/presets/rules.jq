@@ -88,17 +88,14 @@ def flake_input_problems:
 # - decisions: the decisions behind the rule.
 # The shell library is run by actions in action.yml and by workflows in the
 # workflow their callers use; the other presets leave its updates the type of
-# the files they change, ci in CI (FY-0035, FY-0007). Its old name,
-# action-shell-lib, stays until the repository is deleted, since its consumers
-# move to lib-actions one by one. An atom pins lib-atom in its root flake.lock
-# and a release of the atom delivers it to projects; its dev flake takes that
-# pin, so lib-atom has no other.
+# the files they change, ci in CI (FY-0035, FY-0007). An atom pins lib-atom in
+# its root flake.lock and a release of the atom delivers it to projects; its
+# dev flake takes that pin, so lib-atom has no other.
 def libraries: [
   {
     name: "flakeyard/lib-actions",
     names: [
-      "flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions",
-      "flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"
+      "flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions"
     ],
     presets: ["internal/action.json", "internal/workflow.json"],
     owners: "the presets of actions and workflows",

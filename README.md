@@ -56,11 +56,9 @@ users, so `internal/action` and `internal/workflow` make its updates `fix(deps)`
 wherever it is pinned; the rule follows the other commit types, because a later
 rule wins. Other repositories use the library only in their CI, where its
 updates are `ci(deps)` ([FY-0035][fy-0035]). A workflow that uses it only in its
-tests makes them `ci(deps)` in its `renovate.json`. The rule also covers the old
-name of the library, `flakeyard/action-shell-lib`, until that repository is
-deleted, since its consumers move to `lib-actions` one by one
-([FY-0040][fy-0040]). `scripts/check/presets/rules.jq` fails when any other
-preset makes updates of `lib-actions` or `lib-atom` `fix(deps)`.
+tests makes them `ci(deps)` in its `renovate.json`.
+`scripts/check/presets/rules.jq` fails when any other preset makes updates of
+`lib-actions` or `lib-atom` `fix(deps)`.
 
 ```json
 {

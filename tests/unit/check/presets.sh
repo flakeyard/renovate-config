@@ -33,7 +33,7 @@ helpers='
   def shell_library: .packageRules[] | select(is_shell_library);
   def shell_library_removed: .packageRules |= map(select(is_shell_library | not));
   def shell_library_first: .packageRules |= ([.[] | select(is_shell_library)] + [.[] | select(is_shell_library | not)]);
-  def shell_library_fix: {description: "shell library (FY-0035)", matchPackageNames: ["flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions", "flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"], semanticCommitType: "fix"};
+  def shell_library_fix: {description: "shell library (FY-0035)", matchPackageNames: ["flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions"], semanticCommitType: "fix"};
   def shell_library_added: .packageRules += [shell_library_fix];
   def is_atom_library: .description | test("^Updates of lib-atom");
   def atom_library: .packageRules[] | select(is_atom_library);
@@ -121,9 +121,9 @@ internal, the shell library not fix in an action|internal/action.json|shell_libr
 internal, the shell library not fix in a workflow|internal/workflow.json|shell_library_removed|no package rule gives fix to every update of flakeyard/lib-actions
 internal, the shell library as a chore|internal/action.json|shell_library.semanticCommitType = "chore"|no package rule gives fix to every update of flakeyard/lib-actions
 internal, the shell library only as an action|internal/action.json|shell_library.matchManagers = ["github-actions"]|no package rule gives fix to every update of flakeyard/lib-actions
-internal, the shell library as a flake input left out|internal/workflow.json|shell_library.matchPackageNames = ["flakeyard/action-shell-lib"]|no package rule gives fix to every update of flakeyard/lib-actions
-internal, the shell library by its old name only|internal/action.json|shell_library.matchPackageNames -= ["flakeyard/lib-actions", "https://github.com/flakeyard/lib-actions"]|no package rule gives fix to every update of flakeyard/lib-actions
-internal, the shell library by its new name only|internal/workflow.json|shell_library.matchPackageNames -= ["flakeyard/action-shell-lib", "https://github.com/flakeyard/action-shell-lib"]|no package rule gives fix to every update of flakeyard/lib-actions
+internal, the shell library as a flake input left out|internal/workflow.json|shell_library.matchPackageNames = ["flakeyard/lib-actions"]|no package rule gives fix to every update of flakeyard/lib-actions
+internal, the shell library as an action left out|internal/action.json|shell_library.matchPackageNames = ["https://github.com/flakeyard/lib-actions"]|no package rule gives fix to every update of flakeyard/lib-actions
+internal, the shell library with another name|internal/workflow.json|shell_library.matchPackageNames += ["flakeyard/action-shell-lib"]|no package rule gives fix to every update of flakeyard/lib-actions
 internal, the shell library before fix|internal/action.json|shell_library_first|the rule that gives fix to flakeyard/lib-actions must follow every other commit type
 internal, the shell library before ci|internal/workflow.json|shell_library_first|the rule that gives fix to flakeyard/lib-actions must follow every other commit type
 internal, the shell library fix in an image|internal/image.json|shell_library_added|only the presets of actions and workflows may give fix to flakeyard/lib-actions
