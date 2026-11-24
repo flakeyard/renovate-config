@@ -179,13 +179,17 @@ Open the repository in its dev container,
 `direnv` loads the development shell of [`flake.nix`](flake.nix) through
 [`.envrc`](.envrc) ([FY-0012][fy-0012]): [atom-workspace][atom-workspace] joins
 the tools of the atoms, and installs the git hooks each time the shell starts.
-The container runs `direnv allow` when it is created; run it once in every other
-worktree, and run `direnv block` before you check out a branch you do not trust,
-since entering the directory runs that branch's shell hook. Commit inside the
-container, whose Nix store has the tools of the hooks. The commands below run in
-it as in CI; tools that the shell does not have come from nixpkgs, such as
-`nix run nixpkgs#reuse`. Nix on the host works as well: `direnv allow` or
-`nix develop` gives the same shell.
+The container runs `devcontainer-setup` when it is created ([FY-0042][fy-0042]):
+it allows the shell, fails when the shell or its git hooks are broken, and makes
+git record worktrees by relative paths. Create worktrees inside the workspace
+with `git worktree add .worktrees/<name>` and work in them from the same
+container; git on the host must be 2.48 or newer to use them. Run `direnv allow`
+once in every worktree, and run `direnv block` before you check out a branch you
+do not trust, since entering the directory runs that branch's shell hook. Commit
+inside the container, whose Nix store has the tools of the hooks. The commands
+below run in it as in CI; tools that the shell does not have come from nixpkgs,
+such as `nix run nixpkgs#reuse`. Nix on the host works as well: `direnv allow`
+or `nix develop` gives the same shell.
 
 - `nix flake check` checks the presets and configuration files with Renovate's
   validator and the rules of `scripts/check/presets/rules.jq`
@@ -262,6 +266,8 @@ are released:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0007-branching-and-releases.md
 [fy-0012]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0012-develop-in-container.md
+[fy-0042]:
+  https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0042-set-up-the-dev-container-with-one-command-and-keep-worktrees-inside-it.md
 [fy-0024]:
   https://github.com/flakeyard/decisions/blob/main/docs/adr/records/0024-versioning-and-support.md
 [fy-0030]:
